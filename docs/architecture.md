@@ -58,7 +58,26 @@ provenance — without changing the `CountryProfile` API.
   persisted under `life-simulator:theme`.
 - `app/store/profile.ts` — the active `PersonProfile`, persisted via zustand
   `persist` under `life-simulator:profile` with `version: 1`. Schema versioning
-  lives in `data/demo-constants.ts`; migrations are a Sprint 2 concern.
+  lives in `data/demo-constants.ts`; migrations are handled from Sprint 2 onward.
+- `app/store/onboarding.ts` — the in-progress character-creation draft plus the
+  current chapter index, persisted under `life-simulator:onboarding`. A reload
+  resumes exactly where the user left off. `complete()` assigns a real id,
+  pushes the draft into the profile store, and resets the draft.
+
+## Validation philosophy (`domain/validation.ts`)
+
+`validateProfile` returns `error | warning | info` issues. Only genuinely
+impossible states block saving (negative money, impossible ages, missing
+country); unusual-but-real lives produce warnings that link back to the
+offending chapter; contextual notes are `info`. This is deliberate: reality is
+strange and the simulator must not overvalidate people into a narrow template.
+
+## Currency safety on country change
+
+Money is captured as `MoneyAmount { value, currency, period }`. Changing the
+country of residence never silently converts existing amounts — they keep their
+original currency, and the Money chapter surfaces a notice when entered
+currencies diverge from the new country's (`moneyCurrenciesInUse`).
 
 ## Engine readiness (for Sprint 3)
 

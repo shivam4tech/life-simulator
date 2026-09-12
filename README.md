@@ -10,13 +10,13 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 1 of 10 complete
+## Status — Sprint 2 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
 | 1 | Foundation: architecture, domain model, design system, shell, landing, demo profile | ✅ done |
-| 2 | "Build Your Present" character-creation onboarding | next |
-| 3 | Deterministic life simulation engine (seeded Monte Carlo) | |
+| 2 | "Build Your Present" character-creation onboarding | ✅ done |
+| 3 | Deterministic life simulation engine (seeded Monte Carlo) | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -26,6 +26,18 @@ modelled possibility spaces, never predictions or advice.
 | 10 | Life Multiverse, explainability & production hardening | |
 
 The full product brief lives in [docs/prompts/](./docs/prompts).
+
+## Building a life (`/create`)
+
+Character creation runs as 12 short chapters — You · Where you live · Education ·
+Work · Money · Household · Relationships · Health · Behaviour · Goals ·
+Constraints · Review — with progressive disclosure, honest "Not sure" paths on
+every uncertain input, and automatic local persistence (a reload never loses a
+draft). Validation prefers **warnings over blocking**: impossible values (negative
+age, unknown country) block saving; merely unusual lives (retired at 32, executive
+without formal education) are allowed with a note. Money inputs carry the country's
+currency and keep their original denomination if you switch country later. Seven
+clearly-fictional example lives are loadable from the landing page.
 
 ## Tech stack
 

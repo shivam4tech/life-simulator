@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 import { Button, Sparkle } from '@/components/ui'
-import { loadDemoProfile } from '@/app/store/profile'
+import { ExampleChooser } from '@/features/onboarding/ExampleChooser'
 import { TrajectoryCanvas } from './TrajectoryCanvas'
 
 const PRINCIPLES = [
@@ -11,11 +11,6 @@ const PRINCIPLES = [
 
 export function LandingPage() {
   const navigate = useNavigate()
-
-  const tryExample = () => {
-    loadDemoProfile()
-    navigate('/my-life')
-  }
 
   return (
     <div className="relative isolate overflow-hidden">
@@ -38,11 +33,9 @@ export function LandingPage() {
           <Button variant="primary" size="lg" onClick={() => navigate('/create')}>
             Create my life
           </Button>
-          <Button size="lg" onClick={tryExample}>
-            Try an example
-          </Button>
+          <ExampleChooser />
         </div>
-        <p className="mt-3 text-[11px] text-faint">The example loads a fictional person, clearly labelled.</p>
+        <p className="mt-3 text-[11px] text-faint">Examples load fictional people, clearly labelled.</p>
       </section>
 
       <section className="mx-auto max-w-3xl px-6 pb-16">

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router'
 import { Button, EmptyState } from '@/components/ui'
 import { useProfileStore } from '@/app/store/profile'
-import { loadDemoProfile } from '@/app/store/profile'
+import { ExampleChooser } from '@/features/onboarding/ExampleChooser'
 import { ProfileSummary } from './ProfileSummary'
 
 export function MyLifePage() {
@@ -19,9 +19,7 @@ export function MyLifePage() {
               <Button variant="primary" onClick={() => navigate('/create')}>
                 Create my life
               </Button>
-              <Button onClick={() => {
-                loadDemoProfile()
-              }}>Try the example</Button>
+              <ExampleChooser size="md" />
             </div>
           }
         />

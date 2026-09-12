@@ -3,14 +3,14 @@ import { cn } from '@/utils/cn'
 
 export interface ToggleProps {
   checked: boolean
-  onCheckedChange: (checked: boolean) => void
+  onChange: (checked: boolean) => void
   label: string
   description?: string
   disabled?: boolean
   id?: string
 }
 
-export function Toggle({ checked, onCheckedChange, label, description, disabled, id }: ToggleProps) {
+export function Toggle({ checked, onChange, label, description, disabled, id }: ToggleProps) {
   return (
     <label
       htmlFor={id}
@@ -26,7 +26,7 @@ export function Toggle({ checked, onCheckedChange, label, description, disabled,
       <SwitchPrimitive.Root
         id={id}
         checked={checked}
-        onCheckedChange={onCheckedChange}
+        onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
           'relative mt-0.5 h-5 w-9 shrink-0 cursor-pointer rounded-full border border-line transition-colors duration-150',

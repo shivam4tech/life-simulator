@@ -58,6 +58,11 @@ export interface Education {
   field?: string
   currentlyStudying?: boolean
   yearsSinceCompletion?: MaybeValue<number>
+  /**
+   * Optional broad self-assessment of how selective the institution was.
+   * Not an objective ranking.
+   */
+  institutionSelectivity?: 'open-admission' | 'moderately-selective' | 'selective' | 'highly-selective' | 'unknown'
   /** Self-assessed 0–10 willingness to study or retrain. */
   retrainingWillingness?: MaybeValue<number>
 }
@@ -77,11 +82,19 @@ export interface Employment {
   careerSatisfaction?: MaybeValue<number>
   remoteCompatible?: boolean
   entrepreneurialInterest?: MaybeValue<number>
+  /** Self-assessed 0–10 openness to switching employers. */
+  willingnessToChangeJobs?: number
+  /** Self-assessed 0–10 openness to changing career families. */
+  willingnessToChangeCareers?: number
 }
 
 export interface Finances {
   savings?: MaybeMoney
+  /** Liquid buffer earmarked for emergencies. */
+  emergencySavings?: MaybeMoney
   investments?: MaybeMoney
+  /** Property, vehicles, business equity and similar (optional). */
+  majorAssets?: MaybeMoney
   debt?: MaybeMoney
   /** Recurring housing cost (rent, mortgage payment, or household share). */
   housingCost?: MaybeMoney
@@ -106,7 +119,11 @@ export interface Health {
   activity?: MaybeValue<number>
   sleepQuality?: MaybeValue<number>
   smoking?: boolean
+  /** Broad self-reported habit band — a simulation input, not a health verdict. */
+  alcohol?: 'none' | 'light' | 'moderate' | 'heavy' | 'prefer-not'
   healthcareAccess?: MaybeValue<number>
+  /** Self-assessed 0–10 mental wellbeing. Optional. */
+  mentalWellbeing?: MaybeValue<number>
   /** Optional free-text long-term constraints the person wants modelled. */
   longTermConstraints?: string
 }
@@ -219,6 +236,24 @@ export interface Constraints {
   notes?: string
 }
 
+/**
+ * Relationship and family preferences. Sexuality is never inferred; marriage is
+ * never required; "family is not a goal" is a fully supported answer.
+ */
+export interface RelationshipPreferences {
+  /** Open to a long-term partnership in the future. */
+  desiresPartnership?: 'yes' | 'unsure' | 'no'
+  /** Attitude to formalising a partnership. */
+  marriagePreference?: 'important' | 'open' | 'not-for-me' | 'prefer-not'
+  /** Self-assessed 0–10 satisfaction with the current relationship, if partnered. */
+  currentRelationshipSatisfaction?: MaybeValue<number>
+  childrenPreference?: 'yes' | 'no' | 'unsure' | 'prefer-not'
+  desiredNumberOfChildren?: MaybeValue<number>
+  /** Rough desired timing for (more) children. */
+  childrenTiming?: 'soon' | 'next-few-years' | 'later' | 'unsure'
+  opennessToAdoption?: boolean
+}
+
 export interface PersonProfile {
   id: string
   /** Optional display label; profiles are not accounts and carry no personal data by default. */
@@ -236,6 +271,7 @@ export interface PersonProfile {
   health?: Health
   behaviours?: BehaviourProfile
   relationshipStatus?: RelationshipStatus
+  relationshipPreferences?: RelationshipPreferences
   goals?: GoalWeights
   constraints?: Constraints
 }

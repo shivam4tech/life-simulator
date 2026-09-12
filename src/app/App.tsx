@@ -3,7 +3,8 @@ import { AppShell } from './shell/AppShell'
 import { LandingPage } from '@/features/landing/LandingPage'
 import { MyLifePage } from '@/features/profile/MyLifePage'
 import { AssumptionsPage } from '@/features/assumptions/AssumptionsPage'
-import { CreatePage, PlaceholderPage } from '@/features/placeholder/PlaceholderPage'
+import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
+import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage'
 
 export function App() {
   return (
@@ -12,7 +13,7 @@ export function App() {
         <Route index element={<LandingPage />} />
         <Route path="/my-life" element={<MyLifePage />} />
         <Route path="/assumptions" element={<AssumptionsPage />} />
-        <Route path="/create" element={<CreatePage />} />
+        <Route path="/create" element={<OnboardingPage />} />
         <Route
           path="/timeline"
           element={
