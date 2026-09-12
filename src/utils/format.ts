@@ -40,17 +40,24 @@ export const formatMoney = (
   amount: MoneyAmount,
   locale?: string,
   options: CurrencyFormatOptions = {},
+): string => formatCurrencyValue(amount.value, amount.currency, locale, options)
+
+/** Format a bare number in a known currency (engine outputs). */
+export const formatCurrencyValue = (
+  value: number,
+  currency: string,
+  locale?: string,
+  options: CurrencyFormatOptions = {},
 ): string => {
   const { compact = false, decimals } = options
   return new Intl.NumberFormat(resolveLocale(locale), {
     style: 'currency',
-    currency: amount.currency,
+    currency,
     notation: compact ? 'compact' : 'standard',
-    // JPY and others have zero-decimal conventions; let Intl decide by default.
     ...(decimals !== undefined
       ? { minimumFractionDigits: decimals, maximumFractionDigits: decimals }
       : {}),
-  }).format(amount.value)
+  }).format(value)
 }
 
 /** "9,500 / month" style suffix from a MoneyAmount's period. */

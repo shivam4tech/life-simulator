@@ -10,13 +10,14 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 2 of 10 complete
+## Status — Sprint 3 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
 | 1 | Foundation: architecture, domain model, design system, shell, landing, demo profile | ✅ done |
 | 2 | "Build Your Present" character-creation onboarding | ✅ done |
-| 3 | Deterministic life simulation engine (seeded Monte Carlo) | next |
+| 3 | Deterministic life simulation engine (seeded Monte Carlo) | ✅ done |
+| 4 | First fully playable life experience (timeline, outcome bands) | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -69,6 +70,15 @@ npm run dev        # start dev server
 | `npm run lint` | oxlint |
 | `npm run typecheck` | `tsc -b` strict project check |
 
+## The engine
+
+`src/simulation/` is a framework-free deterministic life engine: seeded
+per-domain randomness, yearly tick pipeline (world → country → career →
+relationships → children → health → finances), explainable events, four world
+scenarios, and a worker-based Monte Carlo runner (500–10,000 lives with
+progress and cancellation). Same seed + profile = same futures, guaranteed by
+tests. Details: [docs/simulation-engine.md](./docs/simulation-engine.md).
+
 ## Architecture at a glance
 
 ```
@@ -78,7 +88,7 @@ src/
   features/     product surfaces (landing, profile, assumptions, placeholders)
   domain/       framework-free types + pure helpers (person, country, money, taxonomies)
   data/         country registry (identity ≠ assumptions), archetypes, fictional demo profiles
-  simulation/   deterministic life engine (reserved — lands in Sprint 3)
+  simulation/   deterministic life engine (RNG, pipeline, Monte Carlo runner)
   utils/        formatting (Intl-based), class merging
   styles/       design tokens + global styles
 tests/          vitest suite (domain, data integrity, formatting, store, shell)

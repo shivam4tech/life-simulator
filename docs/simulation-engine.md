@@ -1,0 +1,82 @@
+# Simulation engine
+
+The engine lives in `src/simulation/` and is **framework-free TypeScript**: no
+React, no DOM — it runs identically in Web Workers, Vitest and Node. It turned
+the product from a UI prototype into an actual life simulator (Sprint 3).
+
+## Determinism contract
+
+> same engine version + profile + config + seed ⇒ byte-identical futures
+
+- **Base seed** (string or number) identifies a "universe".
+- **Life seed** = `hash(baseSeed, lifeIndex)` — life #7 is identical whether
+  you run 10 lives or 10,000.
+- **Sub-streams** = `hash(lifeSeed, year, domain)` for each domain
+  (`economy, career, education, health, relationships, family, life-events`).
+  Adding a draw inside one domain never scrambles unrelated domains' histories.
+- PRNG: mulberry32; hashes: xmur3/splitmix-style mixing (`simulation/rng.ts`).
+- Event ids are derived from `(lifeSeed, year, order)` — never a global counter.
+- Everything stochastic in the engine flows through `rngFor`; `Math.random()`
+  is banned in engine code (the only allowed use is the UI's "new random seed"
+  button, which is presentation, not simulation).
+- The contract is enforced by tests: byte-equal snapshots/events for equal
+  inputs, divergence for different seeds, and reproducible aggregates.
+
+## Yearly tick pipeline (`simulation/engine.ts`)
+
+Order encodes causal assumptions and is documented in the source:
+
+1. time progression → 2. world context (macro year) → 3. country context →
+4. education events → 5. career progression → 6. relationship transitions →
+7. children → 8. health → 9. financial consequences → 10. derived metrics →
+11. immutable year snapshot (+ deterministic event ids).
+
+A run stops at the horizon, a target age, or the engine age limit (100).
+Each year produces a `YearSnapshot` (compact numeric record + that year's
+events with signed, human-readable causes: `"+ 7 years experience"`,
+`"- recession year"`). No giant state cloning — history *is* the snapshots.
+
+## Model overview (all coefficients placeholder)
+
+| Subsystem | Shape |
+| --------- | ----- |
+| Income | country median × occupation × seniority × education × settlement × personal anchor; user-entered income always pins the personal anchor; unknown income is sampled log-normal per life |
+| Costs | country price level × household scale × personal cost anchor; children add stage-dependent costs; remittances supported |
+| Career | promotion / job change / job loss / re-employment hazards driven by experience phase, skills, ambition, stability, labour market, sector recession exposure; salary compression above ~2× local market |
+| Retirement | hazard ramps from 60, more likely with runway; pension scales with safety-net strength, indexed to inflation |
+| Relationships | state machine single → dating → committed → cohabiting → married (+separated/divorced/widowed); hazards from satisfaction, stress, preferences; partner income joins the household |
+| Children | strictly gated by stated preference and fertility window; over-desired suppression; children persist and age |
+| Health | index 0–100 with age drift + lifestyle; mild/major shocks with country-sensitive out-of-pocket costs; chronic-constraint possibility; no diagnoses |
+| World | four scenarios (optimistic/stable/difficult/volatile) with growth, inflation (incl. spikes), recession, investment-return regimes; nominal vs real tracked via an inflation index |
+
+All constants live in `simulation/assumptions.ts` with
+`ASSUMPTIONS_PROVENANCE` (`source: internal placeholder model`) — real datasets
+replace values per-coefficient later without touching engine APIs.
+
+## Monte Carlo runner (`simulation/runner.ts` + `worker.ts` + `client.ts`)
+
+- Chunked batches (250 lives) with `onProgress` and an abort signal.
+- Memory: lives stream into compact per-year buffers; only `(seed, composite,
+  startAge, years)` triplets are retained; the four **representative lives**
+  (actual runs nearest each band's characteristic percentile) are re-simulated
+  from their seeds at the end — replayable and shareable.
+- The UI calls `runSimulationAsync`, which runs a module Web Worker and falls
+  back to chunked main-thread execution where workers don't exist.
+
+## Outcome classification
+
+Bands (**difficult / typical / good / exceptional** = bottom 20% / middle 60% /
+next 15% / top 5% of *this universe*) rank lives by the **user's goal-weighted
+alignment composite** — a comparison within their possibility space, never a
+universal life score. Objective dimensions (financial security, career, health,
+family, romance, freedom, stability) are computed separately and displayed
+alongside.
+
+## Testing (`tests/simulation/engine.test.ts`)
+
+Byte-level determinism, seed divergence, per-life identity independent of run
+size, age progression, net-worth identity, real-vs-nominal consistency,
+retirement behaviour, child-preference gating, event validity, band sums,
+progress/cancellation, a 2,000-life performance bound, quantile correctness,
+and six extreme-but-valid fuzz profiles (all finite, no NaN/Infinity, non-negative
+balances).

@@ -79,12 +79,12 @@ country of residence never silently converts existing amounts — they keep thei
 original currency, and the Money chapter surfaces a notice when entered
 currencies diverge from the new country's (`moneyCurrenciesInUse`).
 
-## Engine readiness (for Sprint 3)
+## Engine
 
-`simulation/index.ts` currently only pins `SIMULATION_ENGINE_VERSION`. The
-boundaries it will grow into are already respected by the rest of the codebase:
-pure state transforms, seeded RNG with domain sub-streams, event metadata with
-causes, and a worker-friendly (no-DOM) surface.
+The deterministic engine is live — see [simulation-engine.md](./simulation-engine.md)
+for the determinism contract, tick pipeline, model overview and runner design.
+Summary: `simulation/` imports only from `domain/`/`data/`; the UI talks to it
+exclusively through `runSingleLife` / `runMonteCarlo` / `runSimulationAsync`.
 
 ## Testing strategy
 

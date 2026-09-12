@@ -4,6 +4,7 @@ import { LandingPage } from '@/features/landing/LandingPage'
 import { MyLifePage } from '@/features/profile/MyLifePage'
 import { AssumptionsPage } from '@/features/assumptions/AssumptionsPage'
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
+import { SimulationPage } from '@/features/futures/SimulationPage'
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage'
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
         <Route path="/my-life" element={<MyLifePage />} />
         <Route path="/assumptions" element={<AssumptionsPage />} />
         <Route path="/create" element={<OnboardingPage />} />
+        <Route path="/futures" element={<SimulationPage />} />
         <Route
           path="/timeline"
           element={
@@ -21,16 +23,6 @@ export function App() {
               title="Life timeline"
               sprint={4}
               description="A horizontally explorable timeline of your simulated lives — events, turning points and scrubbing through the years."
-            />
-          }
-        />
-        <Route
-          path="/futures"
-          element={
-            <PlaceholderPage
-              title="Futures"
-              sprint={3}
-              description="The deterministic simulation engine lands here: thousands of seeded lives, outcome bands, distributions and representative paths."
             />
           }
         />
