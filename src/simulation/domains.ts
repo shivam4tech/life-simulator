@@ -1275,6 +1275,19 @@ export const financeTick = (
   const events: SimEventDraft[] = []
   const rng = rngFor(lifeSeed, year, 'economy')
 
+  // --- unemployment benefit floor (social protection, Sprint 9) ---
+  if (state.employment === 'unemployed') {
+    const replacement = median(state) * clamp(state.country.assumptions.socialSafetyNet * 0.55, 0, 0.6) * state.inflationIndex
+    state.monthlyIncome = Math.max(state.monthlyIncome, replacement)
+  }
+
+  // --- child benefit (country family transfers, Sprint 9) ---
+  const childTransfers =
+    state.children.filter((c) => c.livingWithUser && c.age < 18).length *
+    median(state) * 0.03 * state.country.assumptions.socialSafetyNet
+  const personalAnnualBase = state.monthlyIncome * 12
+  void personalAnnualBase
+
   // --- pension & drawdown in retirement ---
   if (state.employment === 'retired') {
     const pension =
@@ -1290,7 +1303,7 @@ export const financeTick = (
   const partnerAnnual = (state.partner?.monthlyIncome ?? 0) * 12
   const childSupportOut = state.childSupportMonthly * 12
   const sideBusinessAnnual = state.business && !state.business.fullTime ? state.business.monthlyIncome * 12 : 0
-  const grossAnnual = Math.max(0, personalAnnual + partnerAnnual + sideBusinessAnnual - childSupportOut)
+  const grossAnnual = Math.max(0, personalAnnual + partnerAnnual + sideBusinessAnnual + childTransfers - childSupportOut)
 
   // --- tuition while studying (sunk cost; dropout keeps the bill) ---
   if (state.educationPlan) {
@@ -1368,6 +1381,11 @@ export const financeTick = (
         causes: ['- random life-event draw', state.savings < grossAnnual * 0.2 ? '- thin savings buffer' : ''],
       }),
     )
+  }
+
+  // --- informal/gig income volatility (Sprint 9): bad and good years are real ---
+  if (state.employment === 'informal' || state.employment === 'gig') {
+    state.monthlyIncome = Math.max(0, state.monthlyIncome * (1 + normal(rng, 0, 0.18)))
   }
 
   // --- indexation ---

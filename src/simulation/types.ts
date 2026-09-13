@@ -278,6 +278,16 @@ export interface YearSnapshot {
   household: { partnerAge: number | null; childAges: number[] }
   /** Savings+investments over annual expenses, months of runway. */
   runwayMonths: number
+  /** Disposable household income (after estimated deductions), start-year prices. */
+  disposableReal: number
+  /** Estimated income percentile in the local distribution (0–1). */
+  incomePercentile: number
+  /** Housing share of disposable household income (0–1+). */
+  housingBurden: number
+  /** Debt service share of disposable household income (0–1+). */
+  debtStress: number
+  /** Multidimensional financial resilience (0–1). */
+  resilience: number
   goalAlignment: number
   events: SimEvent[]
 }

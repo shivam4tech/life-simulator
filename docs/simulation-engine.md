@@ -158,6 +158,29 @@ alongside.
   the dimension's model sensitivity. Outcome-specific (net worth / alignment /
   health / runway), cancellable, deterministic.
 
+## Economic reality (Sprint 9)
+
+- **Provider adapters** (`providers.ts`): IncomeDataProvider, PriceDataProvider,
+  LabourDataProvider, HousingDataProvider, TaxApproximationProvider,
+  CountryIndicatorProvider — placeholder implementations today; real datasets
+  implement the same interfaces. `ECONOMIC_DATA_VERSION` is recorded so saved
+  lives replay against the data they were simulated with.
+- **Economic position** (`economy.ts`): per-year derivation of tax wedge
+  (progressive approximation from archetype), disposable income, income
+  percentile (log-normal CDF with country inequality σ), equivalence-scaled
+  household income, cost basket (housing/food/transport/utilities/health/
+  education/childcare/comms/discretionary), housing burden + stress buckets,
+  debt stress, emergency runway, savings rate and multidimensional resilience.
+- **Money in the engine**: unemployment benefit floor (safety-net replacement
+  rate), child benefit transfers, informal/gig income volatility, and buy-home
+  affordability (price-to-income, deposit, borrowable multiple vs gross
+  income) — all ratio-based against the country baseline, never USD.
+- **Calibration** (`tests/simulation/calibration.test.ts`): synthetic country
+  fixtures at archetype extremes prove the same life is calibrated coherently:
+  income scales with level, housing worsens with cost pressure, the strong
+  welfare state has a higher wedge AND better resilience, and volatility
+  never produces smoother finances.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

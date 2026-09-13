@@ -3,7 +3,7 @@ import { Combobox, ContextualHelp, InlineNotice, Metric } from '@/components/ui'
 import { Section } from '@/features/shared/Section'
 import { listCountryProfiles, searchCountries } from '@/data/countries'
 import { useProfileStore } from '@/app/store/profile'
-import { SIMULATION_ENGINE_VERSION } from '@/simulation'
+import { SIMULATION_ENGINE_VERSION, ECONOMIC_DATA_VERSION } from '@/simulation'
 import { PROFILE_SCHEMA_VERSION } from '@/data/demo-constants'
 import type { CountryProfile } from '@/domain'
 
@@ -106,6 +106,12 @@ export function AssumptionsPage() {
           <dd className="text-fg tnum">{SIMULATION_ENGINE_VERSION}</dd>
           <dt className="text-faint">Profile schema</dt>
           <dd className="text-fg tnum">v{PROFILE_SCHEMA_VERSION}</dd>
+          <dt className="text-faint">Economic data</dt>
+          <dd className="text-fg tnum">{ECONOMIC_DATA_VERSION}</dd>
+          <dt className="text-faint">Tax model</dt>
+          <dd className="text-fg">archetype tax wedge — progressive approximation, placeholder</dd>
+          <dt className="text-faint">Fallback ladder</dt>
+          <dd className="text-fg">estimates resolve country-first (level 4 of 8); real datasets resolve at levels 1–3</dd>
         </dl>
         <p className="mt-4 text-xs leading-relaxed text-faint">
           Life Simulator explores modelled scenarios. It is not financial, medical, legal,

@@ -4,6 +4,7 @@ import { initialiseLife, ProfileNotSimulatableError } from './init'
 import { drawMacroYear, worldEvents } from './world'
 import { careerTick, childrenTick, educationTick, familyTick, financeTick, healthTick, partnerTick, relationshipTick } from './domains'
 import { migrationTick } from './migrations'
+import { deriveEconomicPosition } from './economy'
 import type { FinalOutcome, FinalOutcomeDimension, LifeState, SimEvent, SimulationConfig, SimulationResult, YearSnapshot } from './types'
 
 export { ProfileNotSimulatableError }
@@ -172,7 +173,8 @@ export const tickYear = (
   const finance = financeTick(state, macro, lifeSeed, year)
   yearEvents.push(...finance.events)
 
-  // 10. derived metrics
+  // 10. derived metrics — full economic position (Sprint 9)
+  const position = deriveEconomicPosition(state)
   const runwayMonths = annualRunway(state)
   state.goalAlignment = computeGoalAlignment(state)
 
@@ -192,6 +194,11 @@ export const tickYear = (
     investments: state.investments,
     assets: state.assets,
     debt: state.debt,
+    disposableReal: position.disposableAnnualReal,
+    incomePercentile: position.incomePercentile,
+    housingBurden: position.housingBurden,
+    debtStress: position.debtStress,
+    resilience: position.resilience,
     netWorth: state.savings + state.investments + state.assets - state.debt,
     realNetWorth: (state.savings + state.investments + state.assets - state.debt) / state.inflationIndex,
     healthIndex: state.healthIndex,

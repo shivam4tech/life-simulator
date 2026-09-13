@@ -26,6 +26,7 @@ export type AggregateMetricKey =
   | 'realIncome'
   | 'realNetWorth'
   | 'savings'
+  | 'disposableReal'
   | 'realExpenses'
   | 'runwayMonths'
   | 'healthIndex'
@@ -36,6 +37,7 @@ export const AGGREGATE_METRIC_KEYS: readonly AggregateMetricKey[] = [
   'realIncome',
   'realNetWorth',
   'savings',
+  'disposableReal',
   'realExpenses',
   'runwayMonths',
   'healthIndex',

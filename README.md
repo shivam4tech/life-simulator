@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 8 of 10 complete
+## Status — Sprint 9 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -22,7 +22,8 @@ modelled possibility spaces, never predictions or advice.
 | 6 | Career reinvention, education & Decision Lab | ✅ done |
 | 7 | Migration, country comparison & world dynamics | ✅ done |
 | 8 | Rewind, forks, butterfly mode & sensitivity | ✅ done |
-| 9 | Country-calibrated income, money & economic reality | next |
+| 9 | Country-calibrated income, money & economic reality | ✅ done |
+| 10 | Life Multiverse, explainability & production hardening | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -92,6 +93,19 @@ and return migration when moves fail. The destination explorer ranks
 countries by **your** priorities (career / savings / family / stability /
 adventure), and up to three moves can be compared against staying — same
 seeded worlds, different geographies.
+
+**Economic reality (Sprint 9)**: every monetary quantity is country-calibrated —
+salaries derive from the country baseline × occupation × seniority ×
+education × settlement (never "software engineer = $80,000"); taxes are a
+wedge approximation with progressive adjustment; disposable income,
+income percentile, housing burden, debt stress and a multidimensional
+resilience score are computed per year; "save more" actually cuts spending;
+buying a home requires affordability (price-to-income, deposit, borrowable
+multiple); informal/gig income carries real volatility; unemployment and
+child benefits scale with the social safety net. The **Money in detail**
+panel shows relative local position ("above the modelled local median"),
+not just absolute amounts. Data access goes through provider adapters so
+real datasets replace the placeholder model without touching the engine.
 
 **Rewind & forks** complete the loop: scrub a representative life to any age,
 see its exact historical state (replayed bit-for-bit from the seed), pick an

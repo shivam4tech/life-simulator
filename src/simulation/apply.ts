@@ -2,6 +2,7 @@ import type { EducationLevel, OccupationFamily, SettlementType } from '@/domain'
 import { SETTLEMENT_ECONOMICS } from '@/domain/country'
 import { assessSwitch, OCCUPATION_MODELS, switchIncomeEffect } from './careers'
 import { applyMigration } from './migrations'
+import { assessHomePurchase } from './economy'
 import { separateNow, applyLifestyleChange, applyPrioritizeRelationship, applyLearnSkill } from './lifestyle-interventions'
 import { clamp } from './rng'
 import type { EducationPlan, LifeState } from './types'
@@ -76,9 +77,7 @@ const applyOne = (state: LifeState, intervention: Intervention): void => {
       state.delayedChildrenUntilYear = state.calendarYear + clamp(intervention.years, 1, 15)
       break
     case 'buy-home':
-      // Architectural placeholder — home purchase modelling arrives with the
-      // calibrated economics sprint; the intervention type exists so scenario
-      // definitions remain forward-compatible.
+      applyHomePurchase(state)
       break
   }
 }
@@ -152,6 +151,15 @@ const applyBusiness = (
     state.employment = 'self-employed'
     state.monthlyIncome = state.business.monthlyIncome
   }
+}
+
+/** Buy a home if the household can actually afford it (ratio-based, Sprint 9). */
+const applyHomePurchase = (state: LifeState): void => {
+  const assessment = assessHomePurchase(state)
+  if (!assessment.affordable) return // cannot afford: nothing happens
+  state.savings = Math.max(0, state.savings - assessment.downPayment)
+  state.debt += assessment.mortgage
+  state.assets += assessment.price
 }
 
 const applyRelocation = (state: LifeState, settlement: SettlementType): void => {

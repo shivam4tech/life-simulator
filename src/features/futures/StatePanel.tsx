@@ -128,6 +128,22 @@ export function StatePanel({ result, snapshotIndex, pressures, locale, currency 
           value={formatCurrencyValue(snapshot.realExpenses, currency, locale, { compact: true, decimals: 0 })}
           hint="household, today’s money"
         />
+        <Metric
+          label="Disposable (household)"
+          size="sm"
+          value={formatCurrencyValue(snapshot.disposableReal, currency, locale, { compact: true, decimals: 0 })}
+          hint="per year, today’s money"
+        />
+        <Metric
+          label="Local income position"
+          size="sm"
+          value={`${Math.round(snapshot.incomePercentile * 100)}th pct`}
+        />
+        <Metric
+          label="Housing burden"
+          size="sm"
+          value={`${Math.round(snapshot.housingBurden * 100)}%`}
+        />
       </div>
 
       {pressures.length > 0 && (

@@ -14,7 +14,7 @@
  *  - aggregate helpers            — percentiles, bands, representative seeds
  */
 
-export const SIMULATION_ENGINE_VERSION = '0.8.0-rewind-forks'
+export const SIMULATION_ENGINE_VERSION = '0.9.0-economic-reality'
 
 export * from './types'
 export * from './rng'
@@ -49,6 +49,32 @@ export {
 export { runSimulationAsync, type SimulationRunHandle, type Outcome } from './client'
 export { deriveLifeDrivers, derivePressures, type LifeDriver, type LifePressures } from './insights'
 export { drawMacroYear, type MacroYear } from './world'
+export {
+  deriveEconomicPosition,
+  incomePercentile,
+  incomeBucketFor,
+  householdEquivalenceFactor,
+  housingStressFor,
+  assessHomePurchase,
+  EQUIVALENCE_SCALE_EXPONENT,
+  HOUSING_STRESS_THRESHOLDS,
+  type EconomicPosition,
+  type IncomeBucket,
+  type HousingStress,
+  type HomePurchaseAssessment,
+} from './economy'
+export {
+  placeholderProviders,
+  ECONOMIC_DATA_VERSION,
+  type IncomeDataProvider,
+  type PriceDataProvider,
+  type LabourDataProvider,
+  type HousingDataProvider,
+  type TaxApproximationProvider,
+  type CountryIndicatorProvider,
+  type CostBasketBreakdown,
+  type DataProviderInfo,
+} from './providers'
 export {
   OCCUPATION_MODELS,
   assessSwitch,
