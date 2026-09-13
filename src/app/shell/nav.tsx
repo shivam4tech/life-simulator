@@ -12,8 +12,8 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'Home', icon: <Home /> },
   { to: '/my-life', label: 'My Life', icon: <Person /> },
-  { to: '/timeline', label: 'Timeline', icon: <TimelineIcon />, arrivesInSprint: 4 },
-  { to: '/futures', label: 'Futures', icon: <Branch />, arrivesInSprint: 3 },
+  { to: '/timeline', label: 'Timeline', icon: <TimelineIcon /> },
+  { to: '/futures', label: 'Futures', icon: <Branch /> },
   { to: '/scenario-lab', label: 'Scenario Lab', icon: <Flask />, arrivesInSprint: 6 },
   { to: '/assumptions', label: 'Assumptions', icon: <Sliders /> },
 ] as const
@@ -22,7 +22,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export const MOBILE_NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'Home', icon: <Home /> },
   { to: '/my-life', label: 'My Life', icon: <Person /> },
-  { to: '/futures', label: 'Futures', icon: <Branch />, arrivesInSprint: 3 },
-  { to: '/scenario-lab', label: 'Scenario Lab', icon: <Flask />, arrivesInSprint: 6 },
+  { to: '/timeline', label: 'Timeline', icon: <TimelineIcon /> },
+  { to: '/futures', label: 'Futures', icon: <Branch /> },
   { to: '/assumptions', label: 'Assumptions', icon: <Compass /> },
 ] as const

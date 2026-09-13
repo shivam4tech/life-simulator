@@ -72,6 +72,14 @@ universal life score. Objective dimensions (financial security, career, health,
 family, romance, freedom, stability) are computed separately and displayed
 alongside.
 
+## Life insights (`simulation/insights.ts`)
+
+`deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model
+systems (career, savings, world, relationships, health, family, late shocks)
+that visibly moved a trajectory, citing only evidence present in the run
+output (event counts, snapshot deltas). `derivePressures` computes the
+"top active pressures" for a given age. Both are deterministic and tested.
+
 ## Testing (`tests/simulation/engine.test.ts`)
 
 Byte-level determinism, seed divergence, per-life identity independent of run

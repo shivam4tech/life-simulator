@@ -24,8 +24,13 @@ describe('app shell', () => {
   })
 
   it('renders placeholder pages with their sprint labels', () => {
+    renderApp('/scenario-lab')
+    expect(screen.getByText(/arrives in sprint 6/i)).toBeInTheDocument()
+  })
+
+  it('timeline asks for a universe when none has been simulated', () => {
     renderApp('/timeline')
-    expect(screen.getByText(/arrives in sprint 4/i)).toBeInTheDocument()
+    expect(screen.getByText(/no universe to explore yet/i)).toBeInTheDocument()
   })
 
   it('renders the assumptions page with placeholder-model disclosure', () => {

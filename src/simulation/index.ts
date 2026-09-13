@@ -37,4 +37,5 @@ export {
   type AggregateMetricKey,
 } from './aggregate'
 export { runSimulationAsync, type SimulationRunHandle, type Outcome } from './client'
+export { deriveLifeDrivers, derivePressures, type LifeDriver, type LifePressures } from './insights'
 export { drawMacroYear, type MacroYear } from './world'

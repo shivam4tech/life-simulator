@@ -10,14 +10,15 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 3 of 10 complete
+## Status — Sprint 4 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
 | 1 | Foundation: architecture, domain model, design system, shell, landing, demo profile | ✅ done |
 | 2 | "Build Your Present" character-creation onboarding | ✅ done |
 | 3 | Deterministic life simulation engine (seeded Monte Carlo) | ✅ done |
-| 4 | First fully playable life experience (timeline, outcome bands) | next |
+| 4 | First fully playable life experience (timeline, outcome bands) | ✅ done |
+| 5 | Relationships, partners, children & household systems | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -78,6 +79,13 @@ relationships → children → health → finances), explainable events, four wo
 scenarios, and a worker-based Monte Carlo runner (500–10,000 lives with
 progress and cancellation). Same seed + profile = same futures, guaranteed by
 tests. Details: [docs/simulation-engine.md](./docs/simulation-engine.md).
+
+The **Futures explorer** turns a run into the core game loop: clickable outcome
+bands, percentile-band trajectory charts, a horizontal life timeline with
+domain filters, an event inspector with measured year-over-year deltas, an age
+scrubber with playback, a "this life right now" state panel, and a
+"why did this life happen?" contributor breakdown — all from real engine
+output, on desktop and mobile.
 
 ## Architecture at a glance
 

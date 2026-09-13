@@ -5,6 +5,7 @@ import { MyLifePage } from '@/features/profile/MyLifePage'
 import { AssumptionsPage } from '@/features/assumptions/AssumptionsPage'
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { SimulationPage } from '@/features/futures/SimulationPage'
+import { TimelinePage } from '@/features/timeline/TimelinePage'
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage'
 
 export function App() {
@@ -16,16 +17,7 @@ export function App() {
         <Route path="/assumptions" element={<AssumptionsPage />} />
         <Route path="/create" element={<OnboardingPage />} />
         <Route path="/futures" element={<SimulationPage />} />
-        <Route
-          path="/timeline"
-          element={
-            <PlaceholderPage
-              title="Life timeline"
-              sprint={4}
-              description="A horizontally explorable timeline of your simulated lives — events, turning points and scrubbing through the years."
-            />
-          }
-        />
+        <Route path="/timeline" element={<TimelinePage />} />
         <Route
           path="/scenario-lab"
           element={

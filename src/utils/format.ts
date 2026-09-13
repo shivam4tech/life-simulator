@@ -63,3 +63,6 @@ export const formatCurrencyValue = (
 /** "9,500 / month" style suffix from a MoneyAmount's period. */
 export const periodSuffix = (period: MoneyPeriod | undefined): string =>
   period === 'month' ? '/ month' : period === 'year' ? '/ year' : ''
+
+/** Human label for a currency code in explanatory copy. */
+export const currencyLabel = (currency: string): string => currency || 'local currency'
