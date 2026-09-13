@@ -6,6 +6,33 @@ import type { RngDomain } from './rng'
 
 export type WorldScenario = 'optimistic' | 'stable' | 'difficult' | 'volatile'
 
+/** Deterministic world regime — evolves year to year via seeded transitions. */
+export type WorldRegime =
+  | 'expansion'
+  | 'normal'
+  | 'slowdown'
+  | 'recession'
+  | 'inflation-shock'
+  | 'tech-disruption'
+  | 'geopolitical-stress'
+
+/**
+ * Migration state once the person has moved countries (Sprint 7).
+ * `originCountry` stays on LifeState for return migration.
+ */
+export interface MigrationState {
+  targetCode: string
+  year: number
+  /** Deterministic 0–1 feasibility assessed at the move. */
+  feasibility: number
+  /** 0–1: integration rebuilds over years (network, language, community). */
+  integration: number
+  languageFit: number
+  credentialFactor: number
+  yearsSince: number
+  partnerStayedBehind: boolean
+}
+
 export type EventDomain = RngDomain | 'world' | 'money' | 'location'
 
 export type EventSeverity = 'minor' | 'notable' | 'major'
@@ -116,6 +143,11 @@ export interface LifeState {
   hoursDelta: number // −15..+15
   delayedChildrenUntilYear?: number
   forcedChildAttemptYears: number
+  /** Language fit for international moves; sampled when unknown (documented). */
+  languageFit: number
+  originCountry: string
+  migration: MigrationState | null
+  worldRegime: WorldRegime
 
   // --- health ---
   healthIndex: number // 0..100

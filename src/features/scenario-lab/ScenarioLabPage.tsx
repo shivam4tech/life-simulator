@@ -16,21 +16,28 @@ import { useScenarioLabStore, type SavedBranch } from '@/app/store/scenario-lab'
 import { OCCUPATION_FAMILIES, SETTLEMENT_TYPES } from '@/domain'
 import type { EducationLevel, OccupationFamily } from '@/domain'
 import { formatCompactNumber, formatCurrencyValue } from '@/utils/format'
-import { getCountryProfile } from '@/data/countries'
+import { getCountryProfile, listCountryProfiles } from '@/data/countries'
 import {
   DEFAULT_BRANCH_NAME,
+  DEFAULT_PRIORITIES,
   OCCUPATION_MODELS,
   recommendCareers,
+  recommendDestinations,
+  migrationPreview,
   runScenarioComparison,
+  runMultiBranchComparison,
   assessSwitch,
   SIMULATION_ENGINE_VERSION,
   compareRuns as compareAnalysis,
+  runMultiBranchComparison as runMultiBranchComparisonFn,
   type AggregateMetricKey,
+  type DestinationPriorities,
   type Intervention,
   type ScenarioComparison,
 } from '@/simulation'
 import { Section } from '@/features/shared/Section'
 import { ComparisonChart } from './ComparisonChart'
+import { CountryComparisonResults, DestinationCards, PRIORITY_LABELS } from './CountryComparison'
 
 type LabPhase = 'config' | 'running' | 'results'
 
@@ -43,6 +50,7 @@ const INTERVENTION_TYPES = [
   { value: 'change-working-hours', label: 'Working hours' },
   { value: 'relocate', label: 'Relocate' },
   { value: 'delay-children', label: 'Delay children' },
+  { value: 'migrate', label: 'Migrate abroad' },
 ] as const
 
 type InterventionType = (typeof INTERVENTION_TYPES)[number]['value']
@@ -82,6 +90,15 @@ export function ScenarioLabPage() {
   const [hoursDelta, setHoursDelta] = useState(-5)
   const [relocateSettlement, setRelocateSettlement] = useState<(typeof SETTLEMENT_TYPES)[number]['id']>('major-city')
   const [delayYears, setDelayYears] = useState(3)
+  const [migrateTarget, setMigrateTarget] = useState<string | undefined>('DE')
+  const [migrateSettlement, setMigrateSettlement] = useState<'major-city' | 'secondary-city'>('major-city')
+
+  // country comparison state
+  const [priorities, setPriorities] = useState<DestinationPriorities>(DEFAULT_PRIORITIES)
+  const [selectedDestinations, setSelectedDestinations] = useState<string[]>([])
+  const [countryComparison, setCountryComparison] = useState<ReturnType<typeof runMultiBranchComparison> | null>(null)
+  const [countryPhase, setCountryPhase] = useState<'config' | 'running' | 'results'>('config')
+  const [countryProgress, setCountryProgress] = useState({ completed: 0, total: 0 })
 
   const [comparison, setComparison] = useState<ScenarioComparison | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -143,6 +160,8 @@ export function ScenarioLabPage() {
         return { type: 'relocate', settlement: relocateSettlement }
       case 'delay-children':
         return { type: 'delay-children', years: delayYears }
+      case 'migrate':
+        return migrateTarget ? { type: 'migrate', targetCountry: migrateTarget, settlement: migrateSettlement } : null
       default:
         return null
     }
@@ -203,6 +222,44 @@ export function ScenarioLabPage() {
     signalRef.current.aborted = true
   }
 
+  const runCountryComparison = () => {
+    if (!profile || selectedDestinations.length === 0) return
+    setError(null)
+    const total = 800
+    setCountryProgress({ completed: 0, total })
+    setCountryPhase('running')
+    signalRef.current = { aborted: false }
+    const baseConfig = {
+      seed,
+      worldScenario: 'stable' as const,
+      horizonYears: Number(horizon),
+      startCalendarYear: new Date().getFullYear(),
+    }
+    const branchDefs = selectedDestinations.map((code) => ({
+      name: getCountryProfile(code)?.identity.name ?? code,
+      interventions: [{ type: 'migrate', targetCountry: code } as Intervention],
+    }))
+    setTimeout(() => {
+      try {
+        const result = runMultiBranchComparisonFn(profile, baseConfig, branchDefs, {
+          numLives: total,
+          batchSize: 200,
+          signal: signalRef.current,
+          onProgress: (completed, livesTotal) => setCountryProgress({ completed, total: livesTotal }),
+        })
+        if (signalRef.current.aborted) {
+          setCountryPhase('config')
+          return
+        }
+        setCountryComparison(result)
+        setCountryPhase('results')
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : 'The country comparison failed.')
+        setCountryPhase('config')
+      }
+    }, 30)
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 md:px-6">
       <header className="mb-6">
@@ -259,6 +316,10 @@ export function ScenarioLabPage() {
                 setRelocateSettlement={setRelocateSettlement}
                 delayYears={delayYears}
                 setDelayYears={setDelayYears}
+                migrateTarget={migrateTarget}
+                setMigrateTarget={setMigrateTarget}
+                migrateSettlement={migrateSettlement}
+                setMigrateSettlement={setMigrateSettlement}
               />
               {interventionType === 'change-career' && careerTarget && (
                 <SwitchPreview from={currentOccupation} to={careerTarget} education={profile.education?.level} />
@@ -323,6 +384,71 @@ export function ScenarioLabPage() {
               }}
             />
           </Section>
+
+          <Section title="Explore destinations — ranked by your priorities" className="mt-6">
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+                {(Object.keys(priorities) as (keyof DestinationPriorities)[]).map((key) => (
+                  <Slider
+                    key={key}
+                    aria-label={`${PRIORITY_LABELS[key]} priority`}
+                    value={priorities[key]}
+                    onChange={(value) => setPriorities((current) => ({ ...current, [key]: value }))}
+                    min={0}
+                    max={10}
+                  />
+                ))}
+              </div>
+              <DestinationCards
+                cards={recommendDestinations(profile, priorities)}
+                onSimulate={(code, name) => {
+                  setInterventionType('migrate')
+                  setMigrateTarget(code)
+                  setBranchName(`Move to ${name}`)
+                }}
+                isSelected={(code) => selectedDestinations.includes(code)}
+                onToggleSelect={(code) =>
+                  setSelectedDestinations((current) =>
+                    current.includes(code) ? current.filter((c) => c !== code) : current.length >= 3 ? current : [...current, code],
+                  )
+                }
+              />
+              {selectedDestinations.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button variant="primary" onClick={runCountryComparison}>
+                    Compare {selectedDestinations.length + 1} paths (stay + {selectedDestinations.length} moves)
+                  </Button>
+                  <span className="text-[11px] text-faint">
+                    {selectedDestinations.map((code) => getCountryProfile(code)?.identity.name).join(' · ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {countryPhase === 'running' && (
+            <section aria-label="Country comparison running" className="mx-auto max-w-md py-10 text-center">
+              <p className="font-display text-base font-semibold text-fg uppercase">Comparing countries</p>
+              <p className="tnum mt-2 text-sm text-muted">
+                {formatCompactNumber(countryProgress.completed)} / {formatCompactNumber(countryProgress.total)} lives per branch
+              </p>
+              <div className="mt-4">
+                <Progress value={countryProgress.total > 0 ? countryProgress.completed / countryProgress.total : 0} aria-label="Country comparison progress" />
+              </div>
+              <Button variant="danger" className="mt-4" onClick={() => { signalRef.current.aborted = true }}>
+                Cancel
+              </Button>
+            </section>
+          )}
+
+          {countryPhase === 'results' && countryComparison && (
+            <CountryComparisonResults
+              comparison={countryComparison}
+              locale={locale}
+              currency={currency}
+              onBack={() => setCountryPhase('config')}
+            />
+          )}
 
           {branches.length > 0 && (
             <Section title="Saved branches (this session)" className="mt-6">
@@ -401,6 +527,10 @@ interface InterventionConfigProps {
   setRelocateSettlement: (s: (typeof SETTLEMENT_TYPES)[number]['id']) => void
   delayYears: number
   setDelayYears: (v: number) => void
+  migrateTarget: string | undefined
+  setMigrateTarget: (code: string) => void
+  migrateSettlement: 'major-city' | 'secondary-city'
+  setMigrateSettlement: (s: 'major-city' | 'secondary-city') => void
 }
 
 function InterventionConfig(props: InterventionConfigProps) {
@@ -542,6 +672,56 @@ function InterventionConfig(props: InterventionConfigProps) {
           <Slider aria-label="Delay years" value={props.delayYears} onChange={props.setDelayYears} min={1} max={10} />
         </div>
       )
+    case 'migrate': {
+      const preview = props.migrateTarget ? migrationPreview(props.profile, props.migrateTarget) : null
+      return (
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted">Destination</span>
+              <Combobox
+                options={listCountryProfiles()
+                  .filter((c) => c.identity.code !== props.profile.demographics.countryOfResidence)
+                  .map((c) => ({ value: c.identity.code, label: c.identity.name, detail: c.identity.currency, keywords: [c.identity.region] }))}
+                value={props.migrateTarget}
+                onChange={(code) => props.setMigrateTarget(code)}
+                placeholder="Choose a country…"
+                searchPlaceholder="Search destinations…"
+                aria-label="Destination country"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted">Settle in</span>
+              <SegmentedControl
+                aria-label="Destination settlement"
+                options={[
+                  { value: 'secondary-city', label: 'Secondary city' },
+                  { value: 'major-city', label: 'Major city' },
+                ]}
+                value={props.migrateSettlement}
+                onChange={(v) => props.setMigrateSettlement(v)}
+              />
+            </div>
+          </div>
+          {preview && (
+            <InlineNotice tone={preview.band === 'smooth' ? 'info' : preview.band === 'moderate' ? 'warning' : 'danger'} title={`Migration feasibility: ${preview.band} (model abstraction, not visa advice)`}>
+              <ul className="list-disc pl-4">
+                {preview.reasons.map((reason, index) => (
+                  <li key={index}>{reason}</li>
+                ))}
+                {preview.frictions.map((friction, index) => (
+                  <li key={`f-${index}`}>{friction}</li>
+                ))}
+              </ul>
+            </InlineNotice>
+          )}
+          <p className="text-[11px] text-faint">
+            Salaries recalibrate to the destination market; savings convert at purchasing power; the
+            partner's willingness counts; networks rebuild slowly.
+          </p>
+        </div>
+      )
+    }
     default:
       return null
   }

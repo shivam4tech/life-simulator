@@ -118,6 +118,27 @@ alongside.
 - **Recommendations** (`recommendations.ts`): rule-based reachability ranking
   into strong / longer-term / ambitious tiers with explicit reasons.
 
+## Migration & world dynamics (Sprint 7)
+
+- **CountryProfile** gained employment-protection, informality, entrepreneurship
+  and migration dimensions (accessibility, credential recognition, integration
+  support) — archetype baselines with country overrides, provenance-labelled.
+- **World regimes**: a seeded Markov chain over expansion / normal / slowdown /
+  recession / inflation-shock / tech-disruption / geopolitical-stress, plus
+  rare global events (pandemic-like, conflict, financial crisis, commodity
+  boom, tech shifts) at low frequency. Countries respond by archetype
+  (volatile economies amplify inflation shocks, resource-heavy catch commodity
+  booms, sectors win/lose by regime).
+- **Migration** (`migrations.ts`): deterministic feasibility (credentials,
+  language, savings, age, openness — explicitly an abstraction, not visa
+  advice), moving costs by family size, purchasing-power balance conversion,
+  destination-market salary recalibration, partner willingness, network shock
+  and integration regrowth, remittances, and return migration when moves
+  struggle.
+- **Destination explorer** (`destinations.ts`): goal-dependent ranking across
+  five priority sliders; cards carry banded fits, why-it-appears reasons,
+  frictions and explicit "Model confidence: placeholder" labels.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

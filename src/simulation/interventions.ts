@@ -18,6 +18,7 @@ export type Intervention =
   | { type: 'relocate'; settlement: SettlementType }
   | { type: 'have-child' }
   | { type: 'delay-children'; years: number }
+  | { type: 'migrate'; targetCountry: string; settlement?: SettlementType }
   | { type: 'buy-home' }
 
 export interface InterventionSummary {
@@ -69,6 +70,13 @@ export const describeIntervention = (intervention: Intervention): InterventionSu
       return { title: 'Try for a child now', detail: 'actively attempt parenthood' }
     case 'delay-children':
       return { title: 'Delay children', detail: `wait ~${intervention.years}y before trying` }
+    case 'migrate': {
+      const target = intervention.targetCountry.toUpperCase()
+      return {
+        title: `Migrate to ${target}`,
+        detail: intervention.settlement ? `settling in a ${intervention.settlement.replace(/-/g, ' ')}` : 'international move',
+      }
+    }
     case 'buy-home':
       return { title: 'Buy a home', detail: 'attempt purchase when affordable' }
   }

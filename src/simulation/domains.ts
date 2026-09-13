@@ -55,7 +55,7 @@ export const careerTick = (state: LifeState, macro: MacroYear, lifeSeed: number,
   const events: SimEventDraft[] = []
   let incomeGrowth = 1
   const rng = rngFor(lifeSeed, year, 'career')
-  const exposure = sectorExposure(state)
+  const exposure = sectorExposure(state, macro)
   const labour = macro.labourFactor
   const ageFactor = state.age >= 62 ? 0.6 : 1
 

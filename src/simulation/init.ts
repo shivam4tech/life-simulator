@@ -315,6 +315,11 @@ export const initialiseLife = (
         : clamp(country.assumptions.healthcareAccess, 0.05, 1),
     },
 
+    // Unknown language skill models as a spread around mid-low (documented).
+    languageFit: clamp(logNormal(rng('language'), 0.42, 0.3), 0.1, 0.85),
+    originCountry: country.identity.code,
+    migration: null,
+    worldRegime: 'normal',
     educationLevelKey: education.level,
     network: clamp(28 + yearsExperience * 1.4, 5, 92),
     careerCapital: clamp(22 + yearsExperience * 1.7 + (35 + yearsExperience * 1.6) * 0.18, 5, 96),

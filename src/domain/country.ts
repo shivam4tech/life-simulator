@@ -67,6 +67,20 @@ export interface CountryAssumptions {
   migrationAttractiveness: number
   /** Economic volatility (currency swings, inflation shocks, crises). */
   economicVolatility: number
+
+  /* --- Sprint 7: employment & migration dimensions (placeholder model) --- */
+  /** 0–1: protection against dismissal (reduces job-loss hazard). */
+  employmentProtection: number
+  /** 0–1: prevalence of informal work (income volatility). */
+  informalPrevalence: number
+  /** 0–1: how easy it is to start and run a business. */
+  entrepreneurshipEnvironment: number
+  /** 0–1: openness of the immigration system to skilled workers. */
+  immigrationAccessibility: number
+  /** 0–1: how readily foreign credentials are recognised. */
+  credentialRecognition: number
+  /** 0–1: settlement/integration support (language courses, community). */
+  integrationSupport: number
 }
 
 export type InflationRegime = 'low' | 'moderate' | 'high' | 'volatile'

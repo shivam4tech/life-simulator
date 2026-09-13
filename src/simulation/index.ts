@@ -57,9 +57,26 @@ export {
 export {
   runScenarioComparison,
   runScenarioLife,
+  runMultiBranchComparison,
   type ScenarioComparison,
   type PairedLifeOutcome,
   type ScenarioComparisonOptions,
+  type BranchDef,
+  type BranchAggregate,
 } from './scenario'
+export {
+  recommendDestinations,
+  migrationPreview,
+  DEFAULT_PRIORITIES,
+  type DestinationPriorities,
+  type DestinationCard,
+  type FeasibilityPreview,
+} from './destinations'
+export {
+  assessMigrationFeasibility,
+  applyMigration,
+  purchasingPowerFactor,
+  type FeasibilityAssessment,
+} from './migrations'
 export { compareRuns, type ScenarioComparisonAnalysis, type ScenarioDelta, type BreakEvenSummary } from './comparison'
 export { recommendCareers, type CareerRecommendation, type RecommendationTier } from './recommendations'

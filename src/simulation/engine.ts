@@ -3,6 +3,7 @@ import { deriveLifeSeed, rngFor, hashCombine, clamp } from './rng'
 import { initialiseLife, ProfileNotSimulatableError } from './init'
 import { drawMacroYear, worldEvents } from './world'
 import { careerTick, childrenTick, educationTick, familyTick, financeTick, healthTick, partnerTick, relationshipTick } from './domains'
+import { migrationTick } from './migrations'
 import type { FinalOutcome, FinalOutcomeDimension, LifeState, SimEvent, SimulationConfig, SimulationResult, YearSnapshot } from './types'
 
 export { ProfileNotSimulatableError }
@@ -96,6 +97,9 @@ export const tickYear = (
   // 7. children + extended family obligations
   yearEvents.push(...childrenTick(state, lifeSeed, year))
   yearEvents.push(...familyTick(state, lifeSeed, year))
+
+  // 7b. migration aftermath (integration, remittances, return home)
+  yearEvents.push(...migrationTick(state, macro, lifeSeed, year))
 
   // 8. health
   yearEvents.push(...healthTick(state, lifeSeed, year))

@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 6 of 10 complete
+## Status — Sprint 7 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -20,7 +20,8 @@ modelled possibility spaces, never predictions or advice.
 | 4 | First fully playable life experience (timeline, outcome bands) | ✅ done |
 | 5 | Relationships, partners, children & household systems | ✅ done |
 | 6 | Career reinvention, education & Decision Lab | ✅ done |
-| 7 | Migration, country comparison & world dynamics | next |
+| 7 | Migration, country comparison & world dynamics | ✅ done |
+| 8 | Rewind, forks, butterfly mode & sensitivity | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -81,6 +82,15 @@ relationships → children → health → finances), explainable events, four wo
 scenarios, and a worker-based Monte Carlo runner (500–10,000 lives with
 progress and cancellation). Same seed + profile = same futures, guaranteed by
 tests. Details: [docs/simulation-engine.md](./docs/simulation-engine.md).
+
+**Migration** is a first-class intervention: feasibility as a modelled
+abstraction (never visa advice), destination-market salary recalibration
+(never plain FX), purchasing-power balance conversion, moving costs by family
+size, partner willingness, network shock and slow integration, remittances,
+and return migration when moves fail. The destination explorer ranks
+countries by **your** priorities (career / savings / family / stability /
+adventure), and up to three moves can be compared against staying — same
+seeded worlds, different geographies.
 
 The **Scenario Lab** is the decision game: pick an intervention (career switch
 with honest difficulty classification, study plans with dropout risk, business
