@@ -315,6 +315,19 @@ export const initialiseLife = (
         : clamp(country.assumptions.healthcareAccess, 0.05, 1),
     },
 
+    educationLevelKey: education.level,
+    network: clamp(28 + yearsExperience * 1.4, 5, 92),
+    careerCapital: clamp(22 + yearsExperience * 1.7 + (35 + yearsExperience * 1.6) * 0.18, 5, 96),
+    managementSkill: seniorityIndex >= 4 ? 5 : seniorityIndex >= 2 ? 2 : 0.5,
+    business: null,
+    educationPlan: null,
+    retrainingYearsLeft: 0,
+    jobHuntBoostYears: 0,
+    jobHuntTargetIncrease: 0,
+    savingsRateDelta: 0,
+    hoursDelta: 0,
+    forcedChildAttemptYears: 0,
+
     annualExpenses: 0,
     goalAlignment: 0.5,
   }

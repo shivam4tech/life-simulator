@@ -94,6 +94,30 @@ alongside.
   hazards combine satisfaction, stability, unemployment, debt, time pressure
   and compatibility — never a single cause.
 
+## Decision Lab (Sprint 6)
+
+- **Occupation model** (`careers.ts`): all 20 families carry modelling
+  attributes — education gate, credential barrier, skill demand, physical
+  intensity, remote compatibility, income ceiling, stability, automation
+  exposure, mobility, entrepreneurial applicability, international
+  transferability, growth outlook (placeholder coefficients).
+- **Career capital**: network, accumulated capital and management skill grow
+  with work and survive job loss and failed ventures — the "startup failed,
+  founder improved" loop is explicit (failure adds management + network while
+  money is lost).
+- **Switch distance**: `assessSwitch` derives honest banded classifications
+  (easy / moderate / difficult / major-retraining / credential-gated) from the
+  models, with reasons — no fake percentages.
+- **Interventions** (`interventions.ts` + `apply.ts`): typed commands applied
+  at the fork (currently "now"; Sprint 8 reuses them on restored snapshots).
+- **Paired comparison** (`scenario.ts`): baseline and scenario lives share
+  (seed, lifeIndex) so per-domain streams deliver identical macro shocks —
+  deltas mean "same life, except…". `comparison.ts` computes deltas, the
+  break-even year on median net worth paths, and the share of paired lives
+  ahead at the horizon.
+- **Recommendations** (`recommendations.ts`): rule-based reachability ranking
+  into strong / longer-term / ambitious tiers with explicit reasons.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

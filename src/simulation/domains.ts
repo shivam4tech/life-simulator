@@ -10,6 +10,20 @@ import {
 } from './assumptions'
 import { sectorExposure, type MacroYear } from './world'
 
+const EDUCATION_RANK_LOOKUP: Record<string, number> = {
+  none: 0,
+  primary: 1,
+  'lower-secondary': 2,
+  'upper-secondary': 3,
+  vocational: 3.5,
+  'short-cycle-tertiary': 4,
+  bachelor: 5,
+  master: 6,
+  doctorate: 7,
+  'professional-certification': 4.5,
+  other: 3,
+}
+
 /**
  * Domain stage functions — Sprint 5 adds persistent agents:
  *   - PartnerState: generated once per relationship from the meeting event's
@@ -67,7 +81,24 @@ export const careerTick = (state: LifeState, macro: MacroYear, lifeSeed: number,
   }
 
   if (state.employment === 'retired') {
+    // Retired founders keep a quiet side income if the business survived.
+    if (state.business && !state.business.fullTime) {
+      state.business.monthlyIncome *= 1 + macro.inflation
+    }
     return { events, incomeGrowth }
+  }
+
+  // --- entrepreneurship pathway (Sprint 6) ---
+  if (state.business) {
+    const businessEvents = businessTick(state, macro, rng, year)
+    events.push(...businessEvents)
+    if (state.business && state.business.fullTime) {
+      state.monthlyIncome = Math.max(0, state.business.monthlyIncome)
+    }
+    if (!state.business) {
+      // The business failed inside businessTick — path-dependent scars applied there.
+      return { events, incomeGrowth }
+    }
   }
 
   // --- job loss (employed / self-employed / informal / gig) ---
@@ -158,20 +189,43 @@ export const careerTick = (state: LifeState, macro: MacroYear, lifeSeed: number,
   const phaseFactor = state.yearsExperience < 12 ? 1.3 : state.yearsExperience < 28 ? 1 : 0.6
   const ambitionFactor = 0.6 + state.behaviours.careerAmbition * 0.08
   const skillFactor = 0.6 + state.skillLevel / 125
+  const capitalFactor = 0.85 + (state.careerCapital / 100) * 0.35
   const ceilingDrag = state.seniorityIndex >= 6 ? 0.3 : 1
 
   const promotionChance = clamp(
-    CAREER_ASSUMPTIONS.promotionBase * phaseFactor * ambitionFactor * skillFactor * labour * ceilingDrag * (macro.recession ? 0.45 : 1),
+    CAREER_ASSUMPTIONS.promotionBase * phaseFactor * ambitionFactor * skillFactor * capitalFactor * labour * ceilingDrag * (macro.recession ? 0.45 : 1),
     0.001,
     0.5,
   )
   const dissatisfaction = clamp((7 - state.careerSatisfaction) / 7, 0, 1)
   const mobility = state.behaviours.geographicMobility / 10
+  if (state.retrainingYearsLeft > 0) {
+    state.retrainingYearsLeft -= 1
+    incomeGrowth *= 0.85
+    if (state.retrainingYearsLeft === 0) {
+      state.skillLevel = clamp(state.skillLevel + 8, 0, 100)
+      events.push(
+        makeEvent('retraining', {
+          year,
+          age: state.age,
+          domain: 'education',
+          type: 'retraining-completed',
+          title: 'Retraining completed',
+          description: 'Finished retraining for the new field — skills sharpened, full pay resumes.',
+          severity: 'notable',
+          causes: ['+ retraining programme finished'],
+        }),
+      )
+    }
+  }
+
+  const huntBoost = state.jobHuntBoostYears > 0 ? 1.9 : 1
   const jobChangeChance = clamp(
-    CAREER_ASSUMPTIONS.jobChangeBase * (0.5 + dissatisfaction) * (0.6 + mobility) * labour * (macro.recession ? 0.5 : 1),
+    CAREER_ASSUMPTIONS.jobChangeBase * (0.5 + dissatisfaction) * (0.6 + mobility) * labour * huntBoost * (macro.recession ? 0.5 : 1),
     0.001,
-    0.4,
+    0.45,
   )
+  if (state.jobHuntBoostYears > 0) state.jobHuntBoostYears -= 1
 
   if (chance(rng, promotionChance)) {
     state.seniorityIndex = clamp(state.seniorityIndex + 1, 0, 6)
@@ -198,8 +252,12 @@ export const careerTick = (state: LifeState, macro: MacroYear, lifeSeed: number,
       }),
     )
   } else if (chance(rng, jobChangeChance)) {
-    const change = normal(rng, (CAREER_ASSUMPTIONS.jobChangeSalaryRange[0] + CAREER_ASSUMPTIONS.jobChangeSalaryRange[1]) / 2, 0.09)
+    const hunted = state.jobHuntTargetIncrease > 0 && state.jobHuntBoostYears < 3
+    const change = hunted
+      ? Math.max(1 + state.jobHuntTargetIncrease * uniform(rng, 0.5, 1), normal(rng, 1.12, 0.08))
+      : normal(rng, (CAREER_ASSUMPTIONS.jobChangeSalaryRange[0] + CAREER_ASSUMPTIONS.jobChangeSalaryRange[1]) / 2, 0.09)
     const clamped = clamp(change, 0.9, 1.45)
+    if (hunted) state.jobHuntTargetIncrease = 0
     incomeGrowth *= clamped
     state.yearsInJob = 0
     state.careerSatisfaction = clamp(state.careerSatisfaction + 1.5, 0, 10)
@@ -255,12 +313,128 @@ export const careerTick = (state: LifeState, macro: MacroYear, lifeSeed: number,
     }
   }
 
-  // --- skills & satisfaction drift ---
+  // --- skills, network, capital & satisfaction drift ---
   const learningBoost = state.behaviours.learningInclination * 0.35
   state.skillLevel = clamp(state.skillLevel + (0.8 + learningBoost) * (macro.recession ? 0.5 : 1) - (state.age > 65 ? 1 : 0), 0, 100)
+  state.network = clamp(state.network + 1.2 * (0.5 + state.behaviours.sociability / 20) - (macro.recession ? 0.8 : 0), 0, 100)
+  state.careerCapital = clamp(
+    state.careerCapital + (0.9 + state.behaviours.persistence * 0.05) * (macro.recession ? 0.4 : 1),
+    0,
+    100,
+  )
+  if (state.seniorityIndex >= 4) state.managementSkill = clamp(state.managementSkill + 0.15, 0, 10)
   state.careerSatisfaction = clamp(state.careerSatisfaction + normal(rng, 0, 0.4), 0, 10)
 
   return { events, incomeGrowth }
+}
+
+/**
+ * Business pathway: early-phase survival rolls, growth, plateau, and
+ * failure with path-dependent scars (capital lost, debt, but management
+ * experience and network gained — the "startup failed, founder improved" loop).
+ */
+const businessTick = (state: LifeState, macro: MacroYear, rng: () => number, year: number): SimEventDraft[] => {
+  const events: SimEventDraft[] = []
+  const business = state.business!
+  business.yearsRunning += 1
+
+  if (business.phase === 'early') {
+    // Growth roll (recession hurts young businesses badly).
+    const growth = macro.recession ? normal(rng, 0.02, 0.18) : normal(rng, 0.28, 0.2)
+    business.monthlyIncome = Math.max(0, business.monthlyIncome * (1 + growth))
+    const runway = business.capitalInvested > 0 ? business.capitalInvested / Math.max(state.annualExpenses, 1) : 0
+    const disciplineShield = 0.5 + state.behaviours.discipline * 0.05
+    const failureChance = business.yearsRunning <= 2 ? 0.13 / disciplineShield : 0.07 / disciplineShield
+    if (chance(rng, failureChance * (runway > 1.5 ? 0.7 : 1))) {
+      failBusiness(state, events, year, rng)
+      return events
+    }
+    if (business.yearsRunning >= 3 && chance(rng, 0.5)) {
+      const breakout = chance(rng, 0.18)
+      business.phase = breakout ? 'high-growth' : 'stable'
+      if (breakout) {
+        business.monthlyIncome *= 1.4
+        events.push(
+          makeEvent('breakout', {
+            year,
+            age: state.age,
+            domain: 'career',
+            type: 'business-breakout',
+            title: 'Business breaking out',
+            description: 'The business found real traction and is growing fast.',
+            severity: 'notable',
+            causes: ['+ survived the early phase', `+ sector applicability ${state.occupationFamily.replace(/-/g, ' ')}`],
+          }),
+        )
+      } else {
+        events.push(
+          makeEvent('settle', {
+            year,
+            age: state.age,
+            domain: 'career',
+            type: 'business-stable',
+            title: 'Business found its footing',
+            description: 'The business stabilised into a going concern.',
+            severity: 'notable',
+            causes: ['+ three years of survival'],
+          }),
+        )
+      }
+    }
+    return events
+  }
+
+  if (business.phase === 'high-growth') {
+    business.monthlyIncome *= 1 + normal(rng, 0.3, 0.12)
+    if (business.yearsRunning >= 6) business.phase = 'stable'
+    return events
+  }
+
+  // stable: slow drift with occasional reinvestment; small failure risk remains
+  business.monthlyIncome *= 1 + macro.inflation + normal(rng, 0.015, 0.06)
+  if (chance(rng, 0.025)) {
+    failBusiness(state, events, year, rng)
+  }
+  return events
+}
+
+const failBusiness = (
+  state: LifeState,
+  events: SimEventDraft[],
+  year: number,
+  rng: () => number,
+): void => {
+  const business = state.business!
+  const lostCapital = business.capitalInvested * 0.6
+  state.debt += lostCapital * 0.3
+  state.business = null
+  // Path dependence: money is gone, capability is not.
+  state.careerCapital = clamp(state.careerCapital + 9, 0, 100)
+  state.network = clamp(state.network + 10, 0, 100)
+  state.managementSkill = clamp(state.managementSkill + 1.5, 0, 10)
+  state.careerSatisfaction = clamp(state.careerSatisfaction - 2, 0, 10)
+  if (business.fullTime) {
+    state.employment = 'unemployed'
+    state.unemployedYears = 0
+  }
+  events.push(
+    makeEvent('bizfail', {
+      year,
+      age: state.age,
+      domain: 'career',
+      type: 'business-failure',
+      title: 'Business closed',
+      description: business.fullTime
+        ? 'The business failed: capital lost, some debt taken on — but management experience and network remain.'
+        : 'The side business failed: capital partly lost, lessons kept.',
+      severity: 'major',
+      causes: [
+        '- early-phase survival risk',
+        state.behaviours.discipline < 5 ? '- thin operating discipline' : '',
+      ].filter(Boolean),
+    }),
+  )
+  void rng
 }
 
 /* ------------------------------ PARTNERS -------------------------------- */
@@ -503,7 +677,8 @@ export const relationshipTick = (
     2 +
       (state.employment === 'unemployed' ? -1 : 0) +
       state.children.filter((c) => c.age < 6 && c.livingWithUser).length * 2.2 +
-      state.careLevel * 1.8,
+      state.careLevel * 1.8 +
+      state.hoursDelta / 3,
     0,
     10,
   )
@@ -784,6 +959,7 @@ export const childrenTick = (state: LifeState, lifeSeed: number, year: number): 
 
   // --- arrivals ---
   if (state.childrenPreference === 'no' || state.childrenPreference === 'prefer-not') return events
+  if (state.delayedChildrenUntilYear !== undefined && year < state.delayedChildrenUntilYear) return events
   const inFertilityWindow = state.age >= fertilityWindow[0] && state.age <= fertilityWindow[1]
   const partnered = PARTNERED.includes(state.relationship)
   const partner = state.partner
@@ -808,7 +984,9 @@ export const childrenTick = (state: LifeState, lifeSeed: number, year: number): 
         partnerGate = 1.15
       }
     }
-    const birthChance = clamp(base * desireFactor * suppression * partnerGate * healthFactor, 0, 0.5)
+    const attemptBoost = state.forcedChildAttemptYears > 0 ? 3.2 : 1
+    if (state.forcedChildAttemptYears > 0) state.forcedChildAttemptYears -= 1
+    const birthChance = clamp(base * desireFactor * suppression * partnerGate * healthFactor * attemptBoost, 0, 0.6)
     if (chance(rng, birthChance)) {
       state.children.push(makeChild(state, lifeSeed, year, false, rng))
       state.householdSize += 1
@@ -1106,7 +1284,14 @@ export const financeTick = (
   const personalAnnual = state.monthlyIncome * 12
   const partnerAnnual = (state.partner?.monthlyIncome ?? 0) * 12
   const childSupportOut = state.childSupportMonthly * 12
-  const grossAnnual = Math.max(0, personalAnnual + partnerAnnual - childSupportOut)
+  const sideBusinessAnnual = state.business && !state.business.fullTime ? state.business.monthlyIncome * 12 : 0
+  const grossAnnual = Math.max(0, personalAnnual + partnerAnnual + sideBusinessAnnual - childSupportOut)
+
+  // --- tuition while studying (sunk cost; dropout keeps the bill) ---
+  if (state.educationPlan) {
+    const tuition = median(state) * 0.2 * (1 + (EDUCATION_RANK_LOOKUP[state.educationPlan.targetLevel] ?? 5) * 0.12)
+    state.savings = Math.max(0, state.savings - tuition)
+  }
 
   // --- expenses ---
   state.annualExpenses = householdExpenses(state, median(state)) * state.inflationIndex
@@ -1122,9 +1307,9 @@ export const financeTick = (
   const net = grossAnnual - state.annualExpenses - debtService
   if (net >= 0) {
     const investShare = clamp(
-      ECONOMIC_ASSUMPTIONS.investShareBase * (0.6 + state.behaviours.financialRestraint * 0.08),
-      0.1,
-      0.8,
+      ECONOMIC_ASSUMPTIONS.investShareBase * (0.6 + state.behaviours.financialRestraint * 0.08) + state.savingsRateDelta,
+      0.05,
+      0.9,
     )
     const invested = net * investShare
     state.savings += net - invested
@@ -1202,7 +1387,8 @@ export const healthTick = (state: LifeState, lifeSeed: number, year: number): Si
     state.lifestyle.alcoholBand * 0.12
 
   const ageDrift = state.age < 40 ? H.driftUnder40 : state.age < 60 ? H.drift40to60 : H.drift60plus
-  state.healthIndex = clamp(state.healthIndex + ageDrift + lifestyleBonus + normal(rng, 0, 0.8), 0, 100)
+  const hoursStrain = state.hoursDelta > 0 ? state.hoursDelta * 0.02 : -state.hoursDelta * -0.008
+  state.healthIndex = clamp(state.healthIndex + ageDrift + lifestyleBonus - hoursStrain + normal(rng, 0, 0.8), 0, 100)
 
   if (chance(rng, H.mildEventBase)) {
     const cost = state.monthlyIncome * 12 * H.mildEventCostShareOfIncome * (1.3 - state.lifestyle.healthcareAccess)
@@ -1264,11 +1450,69 @@ export const healthTick = (state: LifeState, lifeSeed: number, year: number): Si
   return events
 }
 
-/** Education: skill/learning events for working adults (study programmes come later). */
+/** Education: study plans (with dropout) plus workplace learning. */
 export const educationTick = (state: LifeState, lifeSeed: number, year: number): SimEventDraft[] => {
   const events: SimEventDraft[] = []
   const rng = rngFor(lifeSeed, year, 'education')
-  if (state.employment === 'employed' && chance(rng, 0.03 * (1 + state.behaviours.learningInclination * 0.15))) {
+
+  // --- study plan (intervention) ---
+  const plan = state.educationPlan
+  if (plan) {
+    plan.remainingYears -= 1
+    const dropoutChance = clamp(
+      0.05 + (state.behaviours.discipline < 4 ? 0.05 : 0) + (state.healthIndex < 50 ? 0.04 : 0) + (state.timePressure > 7 ? 0.05 : 0),
+      0.02,
+      0.3,
+    )
+    if (plan.remainingYears > 0 && chance(rng, dropoutChance)) {
+      state.educationPlan = null
+      events.push(
+        makeEvent('dropout', {
+          year,
+          age: state.age,
+          domain: 'education',
+          type: 'education-abandoned',
+          title: 'Studies paused',
+          description: 'The programme was abandoned partway — costs are sunk, no credential gained. Life happens; no judgement.',
+          severity: 'notable',
+          causes: [
+            state.behaviours.discipline < 4 ? '- low discipline margin' : '',
+            state.timePressure > 7 ? '- household time pressure' : '',
+            state.healthIndex < 50 ? '- health strain' : '',
+          ].filter(Boolean),
+        }),
+      )
+      return events
+    }
+    if (plan.remainingYears <= 0) {
+      const currentRank = EDUCATION_RANK_LOOKUP[state.educationLevelKey ?? 'upper-secondary'] ?? 3
+      const targetRank = EDUCATION_RANK_LOOKUP[plan.targetLevel] ?? 5
+      state.educationPlan = null
+      state.educationLevelKey = plan.targetLevel
+      if (targetRank > currentRank) {
+        const boost = 1 + clamp((targetRank - currentRank) * 0.05, 0.05, 0.3)
+        state.educationMultiplier = clamp(state.educationMultiplier * boost, 0.4, 3)
+        state.incomeMultiplier = clamp(state.incomeMultiplier * (1 + clamp((targetRank - currentRank) * 0.045, 0.04, 0.25)), 0.15, 6)
+        state.monthlyIncome = state.monthlyIncome * (1 + clamp((targetRank - currentRank) * 0.045, 0.04, 0.25))
+        state.skillLevel = clamp(state.skillLevel + 10, 0, 100)
+      }
+      events.push(
+        makeEvent('graduation2', {
+          year,
+          age: state.age,
+          domain: 'education',
+          type: 'education-completed',
+          title: 'Qualification completed',
+          description: `Finished the ${plan.targetLevel.replace(/-/g, ' ')}-equivalent programme — new doors open.`,
+          severity: 'major',
+          causes: ['+ programme completed', '+ credential + skills boost'],
+        }),
+      )
+      return events
+    }
+  }
+
+  if (state.employment === 'employed' && !state.educationPlan && chance(rng, 0.03 * (1 + state.behaviours.learningInclination * 0.15))) {
     state.skillLevel = clamp(state.skillLevel + normal(rng, 4, 1.5), 0, 100)
     events.push(
       makeEvent('training', {

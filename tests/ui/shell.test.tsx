@@ -23,9 +23,9 @@ describe('app shell', () => {
     expect(screen.getByText(/no life here yet/i)).toBeInTheDocument()
   })
 
-  it('renders placeholder pages with their sprint labels', () => {
+  it('scenario lab asks for a life when none exists', () => {
     renderApp('/scenario-lab')
-    expect(screen.getByText(/arrives in sprint 6/i)).toBeInTheDocument()
+    expect(screen.getByText(/no life to experiment on yet/i)).toBeInTheDocument()
   })
 
   it('timeline asks for a universe when none has been simulated', () => {

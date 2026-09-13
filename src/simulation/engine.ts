@@ -34,8 +34,11 @@ export const simulateLife = (
   profile: PersonProfile,
   config: SimulationConfig,
   lifeSeed: number,
+  /** Optional fork hook: mutates the initial state (scenario interventions). */
+  transform?: (state: LifeState) => LifeState,
 ): SimulationResult => {
-  const state = initialiseLife(profile, config, lifeSeed)
+  let state = initialiseLife(profile, config, lifeSeed)
+  if (transform) state = transform(state)
   const snapshots: YearSnapshot[] = []
   const events: SimEvent[] = []
   const years = Math.max(1, Math.min(config.horizonYears, AGE_LIMIT - state.age))

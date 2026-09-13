@@ -14,7 +14,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/my-life', label: 'My Life', icon: <Person /> },
   { to: '/timeline', label: 'Timeline', icon: <TimelineIcon /> },
   { to: '/futures', label: 'Futures', icon: <Branch /> },
-  { to: '/scenario-lab', label: 'Scenario Lab', icon: <Flask />, arrivesInSprint: 6 },
+  { to: '/scenario-lab', label: 'Scenario Lab', icon: <Flask /> },
   { to: '/assumptions', label: 'Assumptions', icon: <Sliders /> },
 ] as const
 

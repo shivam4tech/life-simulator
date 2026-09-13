@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 5 of 10 complete
+## Status — Sprint 6 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -19,7 +19,8 @@ modelled possibility spaces, never predictions or advice.
 | 3 | Deterministic life simulation engine (seeded Monte Carlo) | ✅ done |
 | 4 | First fully playable life experience (timeline, outcome bands) | ✅ done |
 | 5 | Relationships, partners, children & household systems | ✅ done |
-| 6 | Career reinvention, education & Decision Lab | next |
+| 6 | Career reinvention, education & Decision Lab | ✅ done |
+| 7 | Migration, country comparison & world dynamics | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -80,6 +81,14 @@ relationships → children → health → finances), explainable events, four wo
 scenarios, and a worker-based Monte Carlo runner (500–10,000 lives with
 progress and cancellation). Same seed + profile = same futures, guaranteed by
 tests. Details: [docs/simulation-engine.md](./docs/simulation-engine.md).
+
+The **Scenario Lab** is the decision game: pick an intervention (career switch
+with honest difficulty classification, study plans with dropout risk, business
+startups with survival rolls, job hunts, savings rate, working hours, domestic
+relocation, delayed children) and compare thousands of paired lives against
+your baseline — common random numbers keep the world identical so deltas come
+from the decision. Includes break-even analysis, rule-based career
+recommendations with reasons, and session branch management.
 
 The **Futures explorer** turns a run into the core game loop: clickable outcome
 bands, percentile-band trajectory charts, a horizontal life timeline with

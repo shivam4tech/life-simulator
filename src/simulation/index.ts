@@ -14,7 +14,7 @@
  *  - aggregate helpers            — percentiles, bands, representative seeds
  */
 
-export const SIMULATION_ENGINE_VERSION = '0.3.0-deterministic-core'
+export const SIMULATION_ENGINE_VERSION = '0.6.0-decision-lab'
 
 export * from './types'
 export * from './rng'
@@ -39,3 +39,27 @@ export {
 export { runSimulationAsync, type SimulationRunHandle, type Outcome } from './client'
 export { deriveLifeDrivers, derivePressures, type LifeDriver, type LifePressures } from './insights'
 export { drawMacroYear, type MacroYear } from './world'
+export {
+  OCCUPATION_MODELS,
+  assessSwitch,
+  switchIncomeEffect,
+  type OccupationModel,
+  type SwitchAssessment,
+  type SwitchDifficulty,
+} from './careers'
+export { applyInterventions } from './apply'
+export {
+  describeIntervention,
+  DEFAULT_BRANCH_NAME,
+  type Intervention,
+  type InterventionSummary,
+} from './interventions'
+export {
+  runScenarioComparison,
+  runScenarioLife,
+  type ScenarioComparison,
+  type PairedLifeOutcome,
+  type ScenarioComparisonOptions,
+} from './scenario'
+export { compareRuns, type ScenarioComparisonAnalysis, type ScenarioDelta, type BreakEvenSummary } from './comparison'
+export { recommendCareers, type CareerRecommendation, type RecommendationTier } from './recommendations'

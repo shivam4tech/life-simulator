@@ -102,6 +102,21 @@ export interface LifeState {
   desiresPartnership?: 'yes' | 'unsure' | 'no'
   marriagePreference?: 'important' | 'open' | 'not-for-me' | 'prefer-not'
 
+  // --- career capital (Sprint 6): survives job loss; path dependence ---
+  educationLevelKey?: string
+  network: number // 0..100 professional network strength
+  careerCapital: number // 0..100 accumulated advantage
+  managementSkill: number // 0..10
+  business: BusinessState | null
+  educationPlan: EducationPlan | null
+  retrainingYearsLeft: number
+  jobHuntBoostYears: number
+  jobHuntTargetIncrease: number
+  savingsRateDelta: number // −0.2..+0.3
+  hoursDelta: number // −15..+15
+  delayedChildrenUntilYear?: number
+  forcedChildAttemptYears: number
+
   // --- health ---
   healthIndex: number // 0..100
   chronicCondition: boolean
@@ -158,6 +173,22 @@ export interface PartnerState {
     ambition: number
     lifestyle: number
   }
+}
+
+export interface BusinessState {
+  industry: OccupationFamily
+  phase: 'early' | 'stable' | 'high-growth'
+  monthlyIncome: number
+  yearsRunning: number
+  capitalInvested: number
+  fullTime: boolean
+}
+
+export interface EducationPlan {
+  targetLevel: string
+  remainingYears: number
+  totalYears: number
+  mode: 'full-time' | 'part-time'
 }
 
 export type ChildStage =
