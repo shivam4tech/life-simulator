@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { PersonProfile } from '@/domain/person'
-import { unknownValue } from '@/domain'
 import { useProfileStore } from './profile'
 import { ONBOARDING_STORAGE_KEY, ONBOARDING_SCHEMA_VERSION } from '@/data/demo-constants'
 
@@ -26,7 +25,7 @@ export type OnboardingStepId = (typeof ONBOARDING_STEP_IDS)[number]
 export const emptyDraft = (): PersonProfile => ({
   id: 'draft',
   createdAt: new Date().toISOString(),
-  demographics: { age: unknownValue(), countryOfResidence: '', citizenships: [] },
+  demographics: { age: { kind: 'unknown' }, countryOfResidence: '', citizenships: [] },
 })
 
 interface OnboardingState {

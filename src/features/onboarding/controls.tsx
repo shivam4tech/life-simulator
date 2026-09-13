@@ -119,21 +119,18 @@ export function MaybeNumberInput({
         <span className="text-xs font-medium text-muted">{label}</span>
         <NotSure checked={unsure} onChange={(checked) => onChange(checked ? unknownValue() : known(Math.max(0, min ?? 0)))} />
       </div>
-      {unsure ? (
-        <p className="text-[11px] text-faint italic">Unknown</p>
-      ) : (
-        <NumberInput
-          aria-label={label}
-          value={resolved}
-          onChange={(next) => onChange(next === undefined ? unknownValue() : known(next))}
-          min={min}
-          max={max}
-          step={step}
-          prefix={prefix}
-          suffix={suffix}
-          hideSteppers
-        />
-      )}
+      <NumberInput
+        aria-label={label}
+        value={resolved}
+        onChange={(next) => onChange(next === undefined ? unknownValue() : known(next))}
+        min={min}
+        max={max}
+        step={step}
+        prefix={prefix}
+        suffix={suffix}
+        placeholder={unsure ? 'Not sure' : undefined}
+        hideSteppers
+      />
       {hint && <p className="text-[11px] text-faint">{hint}</p>}
     </div>
   )

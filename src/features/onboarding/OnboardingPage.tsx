@@ -45,6 +45,9 @@ export function OnboardingPage() {
         <h1 className="mt-1 font-display text-2xl font-semibold text-fg">
           Chapter {stepIndex + 1} of {CHAPTERS.length} · {chapter.title}
         </h1>
+        <p className="mt-1 text-sm text-muted">
+          12 chapters, ~2 minutes. Skip anything — only country is required.
+        </p>
         <div className="mt-4 flex items-center gap-3">
           <Progress value={(stepIndex + 1) / CHAPTERS.length} className="max-w-xs flex-1" aria-label="Onboarding progress" />
           <span className="text-[11px] text-faint tnum">
