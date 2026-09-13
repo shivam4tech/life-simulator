@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router'
 import { Button, Sparkle } from '@/components/ui'
 import { ExampleChooser } from '@/features/onboarding/ExampleChooser'
 import { TrajectoryCanvas } from './TrajectoryCanvas'
+import { generateRandomLife } from '@/simulation/random-life'
+import { useProfileStore } from '@/app/store/profile'
 
 const PRINCIPLES = [
   'Thousands of seeded futures — never one prediction.',
@@ -34,8 +36,19 @@ export function LandingPage() {
             Create my life
           </Button>
           <ExampleChooser />
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => {
+              const randomLife = generateRandomLife(`random-${Date.now()}`)
+              useProfileStore.getState().setProfile(randomLife)
+              navigate('/my-life')
+            }}
+          >
+            Play a random life
+          </Button>
         </div>
-        <p className="mt-3 text-[11px] text-faint">Examples load fictional people, clearly labelled.</p>
+        <p className="mt-3 text-[11px] text-faint">Random lives are fictional, generated from the country registry.</p>
       </section>
 
       <section className="mx-auto max-w-3xl px-6 pb-16">

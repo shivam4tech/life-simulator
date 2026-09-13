@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 9 of 10 complete
+## Status — Sprint 10 of 10 complete (first full product)
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -23,7 +23,7 @@ modelled possibility spaces, never predictions or advice.
 | 7 | Migration, country comparison & world dynamics | ✅ done |
 | 8 | Rewind, forks, butterfly mode & sensitivity | ✅ done |
 | 9 | Country-calibrated income, money & economic reality | ✅ done |
-| 10 | Life Multiverse, explainability & production hardening | next |
+| 10 | Life Multiverse, chaos, save slots, share, production hardening | ✅ done |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -114,6 +114,12 @@ after the fork (common random numbers), nested forks with breadcrumbs, a
 branch tree with rename/duplicate/guarded-delete, Butterfly Mode (one tiny
 change, measured ripples at 5/10/+N years), and a sensitivity sweep ("what
 matters most?") across eight model dimensions per outcome.
+
+**Sprint 10** adds the chaos dial (Calm / Realistic / Volatile / Wild),
+"Play a random life" (fictional starting states from the country registry),
+save slots with privacy-first JSON export/import, a home dashboard for
+returning users, the end-of-horizon outcome summary, and the **Life
+Multiverse** page showing representative lives side by side.
 
 The **Scenario Lab** is the decision game: pick an intervention (career switch
 with honest difficulty classification, study plans with dropout risk, business

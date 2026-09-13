@@ -7,6 +7,8 @@ import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { SimulationPage } from '@/features/futures/SimulationPage'
 import { TimelinePage } from '@/features/timeline/TimelinePage'
 import { ScenarioLabPage } from '@/features/scenario-lab/ScenarioLabPage'
+import { MultiversePage } from '@/features/multiverse/MultiversePage'
+import { MyLivesPage } from '@/features/lives/MyLivesPage'
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage'
 
 export function App() {
@@ -20,6 +22,8 @@ export function App() {
         <Route path="/futures" element={<SimulationPage />} />
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/scenario-lab" element={<ScenarioLabPage />} />
+        <Route path="/multiverse" element={<MultiversePage />} />
+        <Route path="/lives" element={<MyLivesPage />} />
         <Route path="*" element={<PlaceholderPage title="Not found" />} />
       </Route>
     </Routes>

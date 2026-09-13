@@ -43,6 +43,8 @@ export interface SimulationConfig {
   /** Deterministic universe seed — same inputs + seed = same future. */
   seed: string | number
   worldScenario: WorldScenario
+  /** Randomness dial (default: realistic). Wild is entertainment-heavy. */
+  chaosLevel?: 'calm' | 'realistic' | 'volatile' | 'wild' 
   /** Simulate this many years (unless targetAge stops it first). */
   horizonYears: number
   /** Alternative stopping rule: simulate until this age. */
@@ -69,6 +71,7 @@ export interface LifeState {
   country: CountryProfile
   settlement: SettlementType
   scenario: WorldScenario
+  chaosLevel: 'calm' | 'realistic' | 'volatile' | 'wild'
   behaviours: Required<BehaviourProfile>
   goals: GoalWeights
   constraints: {

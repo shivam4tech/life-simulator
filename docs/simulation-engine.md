@@ -181,6 +181,20 @@ alongside.
   welfare state has a higher wedge AND better resilience, and volatility
   never produces smoother finances.
 
+## Chaos & random lives (Sprint 10)
+
+- **Chaos setting** (`chaos.ts`): CALM / REALISTIC / VOLATILE / WILD.
+  Multipliers on disruption probability, rare-event frequency and macro
+  volatility — layered on top of the world scenario. Default: REALISTIC
+  (multipliers exactly 1). WILD is labelled entertainment-heavy, never
+  "realistic".
+- **Random Life** (`random-life.ts`): fictional starting states drawn from
+  the country registry, deterministic per seed, independently sampled with
+  sanity constraints. Always flagged `isFictional`.
+- **Save slots & sharing** (`save-slots.ts`): named, versioned save slots in
+  localStorage; export/import JSON with the display name and city stripped
+  for privacy-safe sharing. Engine version recorded in every export.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

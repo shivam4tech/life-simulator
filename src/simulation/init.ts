@@ -246,6 +246,7 @@ export const initialiseLife = (
     country,
     settlement: profile.demographics.settlementType ?? 'major-city',
     scenario: config.worldScenario,
+    chaosLevel: config.chaosLevel ?? 'realistic',
     educationMultiplier,
     behaviours: behaviour(profile),
     goals: profile.goals ?? {},

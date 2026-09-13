@@ -14,6 +14,8 @@ import { getCountryProfile } from '@/data/countries'
 import { formatCompactNumber } from '@/utils/format'
 import {
   runSimulationAsync,
+  CHAOS_LEVELS,
+  type ChaosLevel,
   type MonteCarloRun,
   type SimulationConfig,
   type SimulationRunHandle,
@@ -41,6 +43,7 @@ export function SimulationPage() {
   const [lives, setLives] = useState<Lives>('2000')
   const [seed, setSeed] = useState<string>(() => randomSeed())
   const [seedMode, setSeedMode] = useState<'random' | 'specific'>('random')
+  const [chaosLevel, setChaosLevel] = useState<ChaosLevel>('realistic')
 
   const [progress, setProgress] = useState({ completed: 0, total: 0 })
   const [run, setRun] = useState<MonteCarloRun | null>(null)
@@ -85,6 +88,7 @@ export function SimulationPage() {
     const config: SimulationConfig = {
       seed: effectiveSeed,
       worldScenario: scenario,
+      chaosLevel,
       horizonYears: Number(horizon),
       startCalendarYear: new Date().getFullYear(),
     }
@@ -166,6 +170,16 @@ export function SimulationPage() {
                   value={scenario}
                   onChange={setScenario}
                 />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-muted">Chaos</span>
+                <SegmentedControl
+                  aria-label="Chaos level"
+                  options={CHAOS_LEVELS.map((level) => ({ value: level.id, label: level.label }))}
+                  value={chaosLevel}
+                  onChange={setChaosLevel}
+                />
+                <p className="text-[11px] text-faint">{CHAOS_LEVELS.find((level) => level.id === chaosLevel)?.detail}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-muted">Lives to simulate</span>

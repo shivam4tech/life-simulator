@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Branch, Compass, Flask, Home, Person, Sliders, TimelineIcon } from '@/components/ui'
+import { Branch, Compass, Flask, Globe, Home, Person, Shield, Sliders, TimelineIcon } from '@/components/ui'
 
 export interface NavItem {
   to: string
@@ -15,6 +15,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/timeline', label: 'Timeline', icon: <TimelineIcon /> },
   { to: '/futures', label: 'Futures', icon: <Branch /> },
   { to: '/scenario-lab', label: 'Scenario Lab', icon: <Flask /> },
+  { to: '/multiverse', label: 'Multiverse', icon: <Globe /> },
+  { to: '/lives', label: 'My Lives', icon: <Shield /> },
   { to: '/assumptions', label: 'Assumptions', icon: <Sliders /> },
 ] as const
 

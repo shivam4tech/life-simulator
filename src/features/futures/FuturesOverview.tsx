@@ -19,6 +19,7 @@ import { EventInspectorContent } from './EventInspector'
 import { StatePanel } from './StatePanel'
 import { LifeDrivers } from './LifeDrivers'
 import { DimensionRails } from './DimensionRails'
+import { EndOfLifeSummary } from './EndOfLifeSummary'
 import { ForkLab } from './ForkLab'
 import { cn } from '@/utils/cn'
 
@@ -291,6 +292,8 @@ export function FuturesOverview({ run, onRerun }: FuturesOverviewProps) {
               <dd className="text-fg">{profile?.displayName ?? 'Your life'}</dd>
               <dt className="text-faint">World</dt>
               <dd className="text-fg capitalize">{run.config.worldScenario} conditions</dd>
+              <dt className="text-faint">Chaos</dt>
+              <dd className="text-fg capitalize">{run.config.chaosLevel ?? 'realistic'}</dd>
               <dt className="text-faint">Seed</dt>
               <dd className="text-fg tnum">{String(run.config.seed)}</dd>
               <dt className="text-faint">Country model</dt>
@@ -307,6 +310,13 @@ export function FuturesOverview({ run, onRerun }: FuturesOverviewProps) {
           </Section>
         </div>
       </div>
+
+      {/* ------------------- end-of-horizon outcome summary ------------------- */}
+      {selected && (
+        <Section title={`This life at age ${selected.result.snapshots[selected.result.snapshots.length - 1]?.age ?? '—'} — how it ended`}>
+          <EndOfLifeSummary result={selected.result} locale={locale} currency={currency} />
+        </Section>
+      )}
 
       {/* ------------------- rewind · fork · butterfly · sensitivity -------- */}
       {selected && (

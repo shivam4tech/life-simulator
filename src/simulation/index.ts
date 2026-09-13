@@ -14,7 +14,7 @@
  *  - aggregate helpers            — percentiles, bands, representative seeds
  */
 
-export const SIMULATION_ENGINE_VERSION = '0.9.0-economic-reality'
+export const SIMULATION_ENGINE_VERSION = '1.0.0-multiverse'
 
 export * from './types'
 export * from './rng'
@@ -47,6 +47,24 @@ export {
   type AggregateMetricKey,
 } from './aggregate'
 export { runSimulationAsync, type SimulationRunHandle, type Outcome } from './client'
+export {
+  CHAOS_LEVELS,
+  CHAOS_MODIFIERS,
+  type ChaosLevel,
+  type ChaosModifiers,
+} from './chaos'
+export { generateRandomLife } from './random-life'
+export {
+  useSaveSlotsStore,
+  exportLife,
+  exportLifeJson,
+  importLifeJson,
+  sanitiseForShare,
+  SAVE_SLOTS_KEY,
+  SAVE_SLOTS_VERSION,
+  type SaveSlot,
+  type SharePayload,
+} from './save-slots'
 export { deriveLifeDrivers, derivePressures, type LifeDriver, type LifePressures } from './insights'
 export { drawMacroYear, type MacroYear } from './world'
 export {

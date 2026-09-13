@@ -1,5 +1,6 @@
 import { chance, clamp, normal, rngFor } from './rng'
 import { SECTOR_RECESSION_EXPOSURE, WORLD_SCENARIOS } from './assumptions'
+import { CHAOS_MODIFIERS, type ChaosLevel } from './chaos'
 import type { LifeState, SimEventDraft, WorldRegime } from './types'
 
 /**
@@ -71,25 +72,32 @@ const sectorShockFor = (regime: WorldRegime, rng: () => number): MacroYear['sect
 
 export const drawMacroYear = (state: LifeState, year: number, lifeSeed: number): MacroYear => {
   const scenario = WORLD_SCENARIOS[state.scenario]
+  const chaos = CHAOS_MODIFIERS[(state.chaosLevel ?? 'realistic') as ChaosLevel]
   const rng = rngFor(lifeSeed, year, 'economy')
 
-  // --- regime evolution; rare global events can force a regime ---
+  // --- regime evolution; chaos modulates the dice; rare global events fire at low frequency ---
   let regime = nextRegime(state.worldRegime, rng)
+  if (chaos.disruptionMultiplier < 1 && (regime === 'recession' || regime === 'geopolitical-stress') && chance(rng, 1 - chaos.disruptionMultiplier)) {
+    regime = 'normal' // calm dampens disruption
+  } else if (chaos.disruptionMultiplier > 1 && regime === 'normal' && chance(rng, chaos.disruptionMultiplier - 1)) {
+    regime = 'slowdown' // wild stirs the pot
+  }
   let rareEvent: string | null = null
+  const rareThreshold = 0.033 * chaos.rareEventMultiplier
   const rareRoll = rng()
-  if (rareRoll < 0.004) {
+  if (rareRoll < 0.004 * chaos.rareEventMultiplier) {
     regime = 'recession'
     rareEvent = 'pandemic'
-  } else if (rareRoll < 0.009) {
+  } else if (rareRoll < 0.009 * chaos.rareEventMultiplier) {
     regime = 'geopolitical-stress'
     rareEvent = 'conflict'
-  } else if (rareRoll < 0.015) {
+  } else if (rareRoll < 0.015 * chaos.rareEventMultiplier) {
     regime = 'recession'
     rareEvent = 'financial-crisis'
-  } else if (rareRoll < 0.023) {
+  } else if (rareRoll < 0.023 * chaos.rareEventMultiplier) {
     regime = 'expansion'
     rareEvent = 'commodity-boom'
-  } else if (rareRoll < 0.033) {
+  } else if (rareRoll < rareThreshold) {
     regime = 'tech-disruption'
     rareEvent = 'tech-shift'
   }
@@ -115,13 +123,13 @@ export const drawMacroYear = (state: LifeState, year: number, lifeSeed: number):
   }
 
   const recession = regime === 'recession'
-  let inflation = Math.max(0, normal(rng, scenario.inflationMean + regimeInflation[regime]!, scenario.inflationVol))
+  let inflation = Math.max(0, normal(rng, scenario.inflationMean + regimeInflation[regime]!, scenario.inflationVol * chaos.volatilityMultiplier))
   if (regime === 'inflation-shock') inflation += normal(rng, 0.06, 0.03)
 
   // Country response: volatile economies amplify inflation shocks.
   inflation *= 1 + state.country.assumptions.economicVolatility * (regime === 'inflation-shock' ? 0.8 : 0.15)
 
-  const growthNoise = normal(rng, scenario.growthMean + regimeGrowth[regime]!, scenario.growthVol)
+  const growthNoise = normal(rng, scenario.growthMean + regimeGrowth[regime]!, scenario.growthVol * chaos.volatilityMultiplier)
 
   // Commodity boom: resource-heavy archetypes get an extra growth kick.
   const commodityKick =
