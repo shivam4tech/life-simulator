@@ -118,7 +118,7 @@ export function StatePanel({ result, snapshotIndex, pressures, locale, currency 
           size="sm"
           value={
             snapshot.childrenCount > 0
-              ? `${RELATIONSHIP_LABELS[snapshot.relationship] ?? '—'} · ${snapshot.childrenCount} dependent${snapshot.childrenCount > 1 ? 's' : ''}`
+              ? `${RELATIONSHIP_LABELS[snapshot.relationship] ?? '—'} · ${snapshot.childrenCount} child${snapshot.childrenCount > 1 ? 'ren' : ''}`
               : (RELATIONSHIP_LABELS[snapshot.relationship] ?? '—')
           }
         />
@@ -143,6 +143,80 @@ export function StatePanel({ result, snapshotIndex, pressures, locale, currency 
           </ul>
         </section>
       )}
+
+      <HouseholdComposition result={result} snapshotIndex={snapshotIndex} locale={locale} currency={currency} />
     </div>
+  )
+}
+
+/** Household block — who shares the home, who earns, what it adds up to. */
+function HouseholdComposition({
+  result,
+  snapshotIndex,
+  locale,
+  currency,
+}: {
+  result: SimulationResult
+  snapshotIndex: number
+  locale?: string
+  currency: string
+}) {
+  const snapshot = result.snapshots[snapshotIndex]
+  if (!snapshot) return null
+  const members: { label: string; age: number | null; note?: string }[] = [
+    { label: 'You', age: snapshot.age },
+  ]
+  if (snapshot.household.partnerAge !== null) {
+    members.push({
+      label: 'Partner',
+      age: snapshot.household.partnerAge,
+      note: snapshot.partnerMonthlyIncome > 0 ? 'earning' : 'not earning',
+    })
+  }
+  for (const age of snapshot.household.childAges.slice(0, 5)) {
+    members.push({ label: 'Child', age })
+  }
+  if (snapshot.household.childAges.length > 5) {
+    members.push({ label: `+${snapshot.household.childAges.length - 5} more children`, age: null })
+  }
+  const rendered = members.length
+  const others = snapshot.householdSize - rendered
+  if (others > 0) {
+    members.push({ label: `${others} other household member${others === 1 ? '' : 's'}`, age: null })
+  }
+
+  const combinedMonthly = snapshot.nominalIncome / 12 + snapshot.partnerMonthlyIncome
+
+  return (
+    <section aria-label="Household composition" className="border-t border-line pt-3">
+      <p className="mb-2 text-[10px] font-semibold tracking-widest text-faint uppercase">
+        Household · {snapshot.householdSize} {snapshot.householdSize === 1 ? 'person' : 'people'}
+      </p>
+      <ul className="mb-3 flex flex-col gap-1">
+        {members.map((member, index) => (
+          <li key={`${member.label}-${index}`} className="flex items-baseline justify-between text-xs">
+            <span className="text-muted">{member.label}</span>
+            <span className="tnum text-fg">
+              {member.age !== null ? member.age : ''}
+              {member.note && <span className="ml-2 text-[10px] text-faint">{member.note}</span>}
+            </span>
+          </li>
+        ))}
+        {snapshot.careLevel > 0 && (
+          <li className="flex items-baseline justify-between text-xs">
+            <span className="text-muted">Family care duties</span>
+            <span className="text-fg">{snapshot.careLevel === 2 ? 'substantial' : 'regular'}</span>
+          </li>
+        )}
+      </ul>
+      <div className="flex items-baseline justify-between gap-3 border-t border-line pt-2 text-xs">
+        <span className="text-faint">
+          {snapshot.incomeEarners} income earner{snapshot.incomeEarners === 1 ? '' : 's'}
+        </span>
+        <span className="tnum text-fg">
+          {formatCurrencyValue(combinedMonthly, currency, locale, { compact: true, decimals: 0 })} / month combined
+        </span>
+      </div>
+    </section>
   )
 }

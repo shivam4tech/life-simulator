@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 4 of 10 complete
+## Status — Sprint 5 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -18,7 +18,8 @@ modelled possibility spaces, never predictions or advice.
 | 2 | "Build Your Present" character-creation onboarding | ✅ done |
 | 3 | Deterministic life simulation engine (seeded Monte Carlo) | ✅ done |
 | 4 | First fully playable life experience (timeline, outcome bands) | ✅ done |
-| 5 | Relationships, partners, children & household systems | next |
+| 5 | Relationships, partners, children & household systems | ✅ done |
+| 6 | Career reinvention, education & Decision Lab | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |

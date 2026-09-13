@@ -72,6 +72,28 @@ universal life score. Objective dimensions (financial security, career, health,
 family, romance, freedom, stability) are computed separately and displayed
 alongside.
 
+## Persistent agents (Sprint 5)
+
+- **`PartnerState`** — generated once per relationship from the meeting
+  event's seed context (same seed ⇒ same partner): age, work and income
+  (deliberately below the user's on average), personality, children/marriage
+  preferences, migration willingness (for Sprint 7) and five-dimension
+  compatibility. Partners age, earn, lose work, reduce hours for infants and
+  retire; their income flows into household finances. Slow-moving dynamics
+  (satisfaction, stability, financial pressure, time pressure) drift toward
+  compatibility-derived targets — no year-to-year oscillation.
+- **`ChildState`** — persists from arrival (birth or explicit adoption route)
+  to independence: stage ladder, education stage, placeholder health-burden
+  bands, living arrangement. Adult children leave home gradually; custody
+  after separation defaults to staying with the user, with support payments
+  otherwise. Child costs are country-sensitive (benefit discount by safety
+  net, burden multipliers).
+- **Household & extended family** — combined incomes, custody support,
+  remittance growth, and elder-care obligations that arrive mid-life
+  (care level 0–2 with cost + time-pressure effects). Separation/divorce
+  hazards combine satisfaction, stability, unemployment, debt, time pressure
+  and compatibility — never a single cause.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

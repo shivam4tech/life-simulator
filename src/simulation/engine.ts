@@ -2,7 +2,7 @@ import type { PersonProfile } from '@/domain/person'
 import { deriveLifeSeed, rngFor, hashCombine, clamp } from './rng'
 import { initialiseLife, ProfileNotSimulatableError } from './init'
 import { drawMacroYear, worldEvents } from './world'
-import { careerTick, childrenTick, educationTick, financeTick, healthTick, relationshipTick } from './domains'
+import { careerTick, childrenTick, educationTick, familyTick, financeTick, healthTick, partnerTick, relationshipTick } from './domains'
 import type { FinalOutcome, FinalOutcomeDimension, LifeState, SimEvent, SimulationConfig, SimulationResult, YearSnapshot } from './types'
 
 export { ProfileNotSimulatableError }
@@ -87,8 +87,12 @@ export const tickYear = (
   // 6. relationships
   yearEvents.push(...relationshipTick(state, lifeSeed, year))
 
-  // 7. children
+  // 6b. partner life & career (persists, earns, retires)
+  yearEvents.push(...partnerTick(state, macro, lifeSeed, year))
+
+  // 7. children + extended family obligations
   yearEvents.push(...childrenTick(state, lifeSeed, year))
+  yearEvents.push(...familyTick(state, lifeSeed, year))
 
   // 8. health
   yearEvents.push(...healthTick(state, lifeSeed, year))
@@ -124,6 +128,16 @@ export const tickYear = (
     seniorityIndex: state.seniorityIndex,
     relationship: state.relationship,
     childrenCount: state.children.length,
+    householdSize: state.householdSize,
+    incomeEarners:
+      (['employed', 'self-employed', 'informal', 'gig'].includes(state.employment) ? 1 : 0) +
+      (state.partner && ['employed', 'self-employed'].includes(state.partner.employment) ? 1 : 0),
+    partnerMonthlyIncome: state.partner?.monthlyIncome ?? 0,
+    careLevel: state.careLevel,
+    household: {
+      partnerAge: state.partner ? state.partner.age : null,
+      childAges: state.children.filter((c) => c.livingWithUser).map((c) => c.age),
+    },
     runwayMonths,
     goalAlignment: state.goalAlignment,
     events,

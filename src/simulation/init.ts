@@ -7,7 +7,8 @@ import {
   seniorityIndexFromId,
 } from './assumptions'
 import { clamp, logNormal, rngForLife, uniformInt } from './rng'
-import type { LifeState, SimulationConfig } from './types'
+import { generatePartner } from './domains'
+import type { ChildState, LifeState, SimulationConfig } from './types'
 
 /**
  * Initial-state construction: PersonProfile → LifeState.
@@ -202,14 +203,33 @@ export const initialiseLife = (
 
   // --- relationships & household ---
   const dependentsKnown = profile.dependents?.count?.kind === 'known' ? profile.dependents.count.value : undefined
-  const children: { age: number }[] = []
-  const childCount = dependentsKnown ?? 0
-  for (let i = 0; i < childCount; i++) {
-    children.push({ age: Math.max(0, uniformInt(rng(`child${i}`), 1, 15)) })
-  }
   const partnered = ['dating', 'committed', 'cohabiting', 'married'].includes(
     profile.relationshipStatus ?? '',
   )
+  const childCount = dependentsKnown ?? 0
+  const children: ChildState[] = []
+  for (let i = 0; i < childCount; i++) {
+    const childAge = Math.max(0, uniformInt(rng(`child${i}`), 1, 15))
+    children.push({
+      id: `c-init-${lifeSeed.toString(36)}-${i}`,
+      arrivalYear: (config.startCalendarYear ?? 2026) - childAge,
+      adopted: false,
+      age: childAge,
+      stage:
+        childAge < 2
+          ? 'infancy'
+          : childAge < 6
+            ? 'early-childhood'
+            : childAge < 13
+              ? 'school-age'
+              : childAge < 19
+                ? 'adolescence'
+                : 'young-adult',
+      educationStage: childAge < 5 ? 'pre' : childAge < 12 ? 'primary' : childAge < 18 ? 'secondary' : 'secondary',
+      healthBurden: 'none',
+      livingWithUser: true,
+    })
+  }
   const householdSize = household.size?.kind === 'known' ? household.size.value : 1 + children.length + (partnered ? 1 : 0)
 
   // --- health ---
@@ -266,16 +286,19 @@ export const initialiseLife = (
     relationship: profile.relationshipStatus ?? 'single',
     relationshipYears: partnered ? 3 : 0,
     relationshipSatisfaction: 6.5,
-    partnerIncomeShare:
-      partnered
-        ? logNormal(rng('partner'), 1, 0.4) * countryMedianIncome(country) * 0.8
-        : 0,
+    relationshipStability: 6,
+    sharedFinancialPressure: debt > 0 ? 5 : 3,
+    timePressure: 3,
+    partner: null, // generated below, once the state (behaviours, country) exists
     children,
     householdSize: Math.max(1, householdSize),
+    childSupportMonthly: 0,
+    careLevel: constraints.familyCareObligations ?? household.hasCareObligations ? (age >= 45 ? 1 : 0) : 0,
     desiredChildren: profile.relationshipPreferences?.desiredNumberOfChildren?.kind === 'known'
       ? profile.relationshipPreferences.desiredNumberOfChildren.value
       : undefined,
     childrenPreference: profile.relationshipPreferences?.childrenPreference,
+    opennessToAdoption: profile.relationshipPreferences?.opennessToAdoption ?? false,
     desiresPartnership: profile.relationshipPreferences?.desiresPartnership ?? 'unsure',
     marriagePreference: profile.relationshipPreferences?.marriagePreference,
 
@@ -294,6 +317,18 @@ export const initialiseLife = (
 
     annualExpenses: 0,
     goalAlignment: 0.5,
+  }
+
+  // Partner at start uses the same deterministic generation as any meeting
+  // (year −1 tag = "initial partner"), so replays reproduce them exactly.
+  if (partnered) {
+    const partner = generatePartner(state, lifeSeed, -1)
+    if (partner.employment === 'unemployed' || partner.employment === 'inactive') {
+      partner.monthlyIncome = 0
+    } else {
+      partner.monthlyIncome = countryMedianIncome(country) * partner.incomeMultiplier
+    }
+    state.partner = partner
   }
 
   return state

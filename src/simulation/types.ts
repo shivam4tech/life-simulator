@@ -85,12 +85,20 @@ export interface LifeState {
   // --- relationships & household ---
   relationship: RelationshipStatus
   relationshipYears: number
-  relationshipSatisfaction: number // 0..10
-  partnerIncomeShare: number // fraction of country median (0 when single)
-  children: { age: number }[]
+  relationshipSatisfaction: number // 0..10, slow-moving
+  relationshipStability: number // 0..10, slower still
+  sharedFinancialPressure: number // 0..10
+  timePressure: number // 0..10
+  partner: PartnerState | null
+  children: ChildState[]
   householdSize: number
+  /** Monthly support paid for children living elsewhere (nominal). */
+  childSupportMonthly: number
+  /** 0–2: rising elder-care / family care requirement. */
+  careLevel: number
   desiredChildren?: number
   childrenPreference?: 'yes' | 'no' | 'unsure' | 'prefer-not'
+  opennessToAdoption?: boolean
   desiresPartnership?: 'yes' | 'unsure' | 'no'
   marriagePreference?: 'important' | 'open' | 'not-for-me' | 'prefer-not'
 
@@ -114,6 +122,65 @@ export interface LifeState {
 /** Stages produce drafts; the engine assigns deterministic ids. */
 export type SimEventDraft = Omit<SimEvent, 'id'>
 
+/**
+ * PartnerState — a lightweight simulated person, not a boolean flag.
+ * Compact by design: enough dimensions to make partnership dynamics
+ * meaningful (compatibility, income, preferences) without simulating a
+ * second full life. Identity is seed-derived: replaying the same run
+ * produces the same partner.
+ */
+export interface PartnerState {
+  /** Stable identity tag derived from the meeting event's seed context. */
+  id: string
+  age: number
+  educationLevel: string
+  employment: 'employed' | 'unemployed' | 'self-employed' | 'retired' | 'inactive'
+  occupationFamily: OccupationFamily
+  /** Personal income multiplier vs the country baseline. */
+  incomeMultiplier: number
+  /** Nominal monthly income (0 while unemployed/inactive). */
+  monthlyIncome: number
+  healthIndex: number
+  /** 0–10 dispositions. */
+  riskTolerance: number
+  financialRestraint: number
+  careerAmbition: number
+  sociability: number
+  childrenPreference: 'yes' | 'no' | 'unsure'
+  marriagePreference: 'important' | 'open' | 'not-for-me'
+  /** 0–10; models into migration decisions from Sprint 7. */
+  migrationWillingness: number
+  /** Multidimensional compatibility with the user, 0–1 each. */
+  compatibility: {
+    values: number
+    children: number
+    money: number
+    ambition: number
+    lifestyle: number
+  }
+}
+
+export type ChildStage =
+  | 'infancy'
+  | 'early-childhood'
+  | 'school-age'
+  | 'adolescence'
+  | 'young-adult'
+  | 'independent'
+
+export interface ChildState {
+  id: string
+  /** Calendar year the child arrived (birth or adoption). */
+  arrivalYear: number
+  adopted: boolean
+  age: number
+  stage: ChildStage
+  educationStage: 'pre' | 'primary' | 'secondary' | 'tertiary' | 'done'
+  /** Placeholder burden bands — affect cost and time, never a diagnosis. */
+  healthBurden: 'none' | 'mild' | 'significant'
+  livingWithUser: boolean
+}
+
 export interface YearSnapshot {
   year: number
   age: number
@@ -135,6 +202,16 @@ export interface YearSnapshot {
   seniorityIndex: number
   relationship: RelationshipStatus
   childrenCount: number
+  /** Members of the household at this point (incl. the user). */
+  householdSize: number
+  /** People contributing wage/business income. */
+  incomeEarners: number
+  /** Partner's nominal monthly income (0 when single). */
+  partnerMonthlyIncome: number
+  /** Family-care requirement level (0–2). */
+  careLevel: number
+  /** Who shares the home at this point (compact composition for the UI). */
+  household: { partnerAge: number | null; childAges: number[] }
   /** Savings+investments over annual expenses, months of runway. */
   runwayMonths: number
   goalAlignment: number
