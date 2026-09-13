@@ -1244,7 +1244,12 @@ export const householdExpenses = (state: LifeState, median: number): number => {
   const support =
     state.sendsSupport && state.monthlyIncome > 0 ? state.supportShare * state.monthlyIncome * 12 : 0
   const essential = base * householdScale * state.costMultiplier
-  const discretionary = essential * (0.1 + (10 - state.behaviours.financialRestraint) * 0.02)
+  // "Save more" is a spending decision too: positive savings-rate deltas trim
+  // discretionary consumption; negative deltas mean looser spending.
+  const discretionary =
+    essential *
+    (0.1 + (10 - state.behaviours.financialRestraint) * 0.02) *
+    (1 - clamp(state.savingsRateDelta, 0, 0.6) + clamp(-state.savingsRateDelta, 0, 0.4) * 0.8)
   // Computed in base-year prices; financeTick indexes to the current price level.
   return (essential + discretionary) * 12 + childrenCost * benefitDiscount * 12 + (careCost + support) * 12
 }
@@ -1512,6 +1517,10 @@ export const educationTick = (state: LifeState, lifeSeed: number, year: number):
     }
   }
 
+  if (state.learningBoostYears > 0) {
+    state.learningBoostYears -= 1
+    state.skillLevel = clamp(state.skillLevel + 2.5, 0, 100)
+  }
   if (state.employment === 'employed' && !state.educationPlan && chance(rng, 0.03 * (1 + state.behaviours.learningInclination * 0.15))) {
     state.skillLevel = clamp(state.skillLevel + normal(rng, 4, 1.5), 0, 100)
     events.push(

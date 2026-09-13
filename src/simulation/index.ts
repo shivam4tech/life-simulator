@@ -14,13 +14,23 @@
  *  - aggregate helpers            — percentiles, bands, representative seeds
  */
 
-export const SIMULATION_ENGINE_VERSION = '0.6.0-decision-lab'
+export const SIMULATION_ENGINE_VERSION = '0.8.0-rewind-forks'
 
 export * from './types'
 export * from './rng'
 export * from './assumptions'
 export { initialiseLife, ProfileNotSimulatableError } from './init'
-export { simulateLife, tickYear, computeFinalOutcome, computeGoalAlignment, dimensionScores, AGE_LIMIT } from './engine'
+export {
+  simulateLife,
+  tickYear,
+  computeFinalOutcome,
+  computeGoalAlignment,
+  dimensionScores,
+  rewindTo,
+  simulateFromState,
+  cloneState,
+  AGE_LIMIT,
+} from './engine'
 export { runMonteCarlo, runSingleLife, type MonteCarloRun, type RunOptions } from './runner'
 export {
   buildAggregate,
@@ -78,5 +88,26 @@ export {
   purchasingPowerFactor,
   type FeasibilityAssessment,
 } from './migrations'
+export {
+  BUTTERFLY_PRESETS,
+  createFork,
+  createNestedFork,
+  runButterfly,
+  rewindAndReplay,
+  type ForkBranch,
+  type ForkRequest,
+  type ButterflyPreset,
+  type ButterflyDivergence,
+  type DivergenceSnapshot,
+} from './forks'
+export {
+  runSensitivity,
+  SENSITIVITY_DIMENSIONS,
+  type SensitivityDimensionResult,
+  type SensitivityDimensionKey,
+  type SensitivityMetric,
+  type SensitivityLevel,
+  type SensitivityOptions,
+} from './sensitivity'
 export { compareRuns, type ScenarioComparisonAnalysis, type ScenarioDelta, type BreakEvenSummary } from './comparison'
 export { recommendCareers, type CareerRecommendation, type RecommendationTier } from './recommendations'

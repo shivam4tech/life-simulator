@@ -10,7 +10,7 @@ exceptional — with explainable turning points and country-aware economics.
 This is a simulation game built on explicit models, not a horoscope: outputs are
 modelled possibility spaces, never predictions or advice.
 
-## Status — Sprint 7 of 10 complete
+## Status — Sprint 8 of 10 complete
 
 | Sprint | Scope | Status |
 | ------ | ----- | ------ |
@@ -21,7 +21,8 @@ modelled possibility spaces, never predictions or advice.
 | 5 | Relationships, partners, children & household systems | ✅ done |
 | 6 | Career reinvention, education & Decision Lab | ✅ done |
 | 7 | Migration, country comparison & world dynamics | ✅ done |
-| 8 | Rewind, forks, butterfly mode & sensitivity | next |
+| 8 | Rewind, forks, butterfly mode & sensitivity | ✅ done |
+| 9 | Country-calibrated income, money & economic reality | next |
 | 4 | First fully playable life experience (timeline, outcome bands) | |
 | 5 | Relationships, partners, children & household systems | |
 | 6 | Career reinvention, education & Decision Lab | |
@@ -91,6 +92,14 @@ and return migration when moves fail. The destination explorer ranks
 countries by **your** priorities (career / savings / family / stability /
 adventure), and up to three moves can be compared against staying — same
 seeded worlds, different geographies.
+
+**Rewind & forks** complete the loop: scrub a representative life to any age,
+see its exact historical state (replayed bit-for-bit from the seed), pick an
+intervention from the palette, and branch — shared history, identical shocks
+after the fork (common random numbers), nested forks with breadcrumbs, a
+branch tree with rename/duplicate/guarded-delete, Butterfly Mode (one tiny
+change, measured ripples at 5/10/+N years), and a sensitivity sweep ("what
+matters most?") across eight model dimensions per outcome.
 
 The **Scenario Lab** is the decision game: pick an intervention (career switch
 with honest difficulty classification, study plans with dropout risk, business

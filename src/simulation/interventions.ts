@@ -19,6 +19,10 @@ export type Intervention =
   | { type: 'have-child' }
   | { type: 'delay-children'; years: number }
   | { type: 'migrate'; targetCountry: string; settlement?: SettlementType }
+  | { type: 'lifestyle-change'; activityDelta: number; sleepDelta: number }
+  | { type: 'prioritize-relationship' }
+  | { type: 'separate' }
+  | { type: 'learn-skill' }
   | { type: 'buy-home' }
 
 export interface InterventionSummary {
@@ -77,6 +81,17 @@ export const describeIntervention = (intervention: Intervention): InterventionSu
         detail: intervention.settlement ? `settling in a ${intervention.settlement.replace(/-/g, ' ')}` : 'international move',
       }
     }
+    case 'lifestyle-change':
+      return {
+        title: 'Change daily habits',
+        detail: `activity ${intervention.activityDelta >= 0 ? '+' : ''}${intervention.activityDelta}, sleep ${intervention.sleepDelta >= 0 ? '+' : ''}${intervention.sleepDelta}`,
+      }
+    case 'prioritize-relationship':
+      return { title: 'Prioritize the relationship', detail: 'more time and attention at home' }
+    case 'separate':
+      return { title: 'Separate', detail: 'end the partnership now' }
+    case 'learn-skill':
+      return { title: 'Learn a new skill', detail: 'focused self-directed learning' }
     case 'buy-home':
       return { title: 'Buy a home', detail: 'attempt purchase when affordable' }
   }

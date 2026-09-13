@@ -63,6 +63,70 @@ export const simulateLife = (
   }
 }
 
+/**
+ * Rewind: reconstruct the EXACT historical state at a year index by
+ * deterministic replay from the seed. This is not an approximation — the
+ * engine is a pure function of (profile, config, seed), so replaying the same
+ * ticks reproduces the historical state bit-for-bit.
+ */
+export const rewindTo = (
+  profile: PersonProfile,
+  config: SimulationConfig,
+  lifeSeed: number,
+  yearIndex: number,
+  transform?: (state: LifeState) => LifeState,
+): LifeState => {
+  let state = initialiseLife(profile, config, lifeSeed)
+  if (transform) state = transform(state)
+  // Semantics: rewindTo(n) = the state after n ticks (n = 0 → the initial state).
+  // Snapshot index i corresponds to rewindTo(i + 1).
+  const ticks = Math.max(0, Math.min(yearIndex, config.horizonYears))
+  for (let i = 0; i < ticks; i++) {
+    tickYear(state, lifeSeed)
+    if (state.age >= AGE_LIMIT) break
+  }
+  return cloneState(state)
+}
+
+/** Deep-clone a LifeState (plain data + shared immutable country reference). */
+export const cloneState = (state: LifeState): LifeState => {
+  if (typeof structuredClone === 'function') {
+    const clone = structuredClone(state) as LifeState
+    // Country is a plain data object too, so structuredClone copies it — fine,
+    // but keep one shared instance to avoid divergence surprises.
+    clone.country = state.country
+    return clone
+  }
+  return JSON.parse(JSON.stringify(state)) as LifeState
+}
+
+/** Continue a simulation from a restored state for N more years. */
+export const simulateFromState = (
+  state: LifeState,
+  years: number,
+  lifeSeed: number,
+): SimulationResult => {
+  const snapshots: YearSnapshot[] = []
+  const events: SimEvent[] = []
+  const total = Math.max(1, Math.min(years, AGE_LIMIT - state.age))
+  for (let i = 0; i < total; i++) {
+    const tick = tickYear(state, lifeSeed)
+    snapshots.push(tick.snapshot)
+    events.push(...tick.events)
+    if (state.age >= AGE_LIMIT) break
+  }
+  const final = computeFinalOutcome(state, 'horizon')
+  return {
+    seed: lifeSeed,
+    config: { seed: lifeSeed, worldScenario: state.scenario, horizonYears: snapshots.length, startCalendarYear: state.calendarYear - snapshots.length },
+    startAge: snapshots[0]?.age ?? state.age,
+    startCalendarYear: state.calendarYear - snapshots.length,
+    snapshots,
+    events,
+    final,
+  }
+}
+
 /** Advance one simulated year; mutates `state` (engine-internal working copy). */
 export const tickYear = (
   state: LifeState,

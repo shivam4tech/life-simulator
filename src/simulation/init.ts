@@ -327,6 +327,7 @@ export const initialiseLife = (
     business: null,
     educationPlan: null,
     retrainingYearsLeft: 0,
+    learningBoostYears: 0,
     jobHuntBoostYears: 0,
     jobHuntTargetIncrease: 0,
     savingsRateDelta: 0,

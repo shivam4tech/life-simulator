@@ -2,6 +2,7 @@ import type { EducationLevel, OccupationFamily, SettlementType } from '@/domain'
 import { SETTLEMENT_ECONOMICS } from '@/domain/country'
 import { assessSwitch, OCCUPATION_MODELS, switchIncomeEffect } from './careers'
 import { applyMigration } from './migrations'
+import { separateNow, applyLifestyleChange, applyPrioritizeRelationship, applyLearnSkill } from './lifestyle-interventions'
 import { clamp } from './rng'
 import type { EducationPlan, LifeState } from './types'
 import type { Intervention } from './interventions'
@@ -55,6 +56,18 @@ const applyOne = (state: LifeState, intervention: Intervention): void => {
       break
     case 'migrate':
       applyMigration(state, intervention.targetCountry, intervention.settlement)
+      break
+    case 'lifestyle-change':
+      applyLifestyleChange(state, intervention.activityDelta, intervention.sleepDelta)
+      break
+    case 'prioritize-relationship':
+      applyPrioritizeRelationship(state)
+      break
+    case 'separate':
+      separateNow(state)
+      break
+    case 'learn-skill':
+      applyLearnSkill(state)
       break
     case 'have-child':
       state.forcedChildAttemptYears = 4

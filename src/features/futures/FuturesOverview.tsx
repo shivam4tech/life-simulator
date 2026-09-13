@@ -19,6 +19,7 @@ import { EventInspectorContent } from './EventInspector'
 import { StatePanel } from './StatePanel'
 import { LifeDrivers } from './LifeDrivers'
 import { DimensionRails } from './DimensionRails'
+import { ForkLab } from './ForkLab'
 import { cn } from '@/utils/cn'
 
 const BAND_LABELS: Record<OutcomeBand, string> = {
@@ -306,6 +307,21 @@ export function FuturesOverview({ run, onRerun }: FuturesOverviewProps) {
           </Section>
         </div>
       </div>
+
+      {/* ------------------- rewind · fork · butterfly · sensitivity -------- */}
+      {selected && (
+        <Section title="Rewind & fork this life" className="mt-10">
+          <ForkLab
+            profile={profile!}
+            config={run.config}
+            lifeSeed={selected.result.seed}
+            original={selected.result}
+            selectedYearIndex={Math.min(selectedYearIndex, selected.result.snapshots.length - 1)}
+            locale={locale}
+            currency={currency}
+          />
+        </Section>
+      )}
 
       {/* --------------------------- inspector ------------------------------ */}
       <Sheet

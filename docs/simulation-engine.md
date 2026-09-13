@@ -139,6 +139,25 @@ alongside.
   five priority sliders; cards carry banded fits, why-it-appears reasons,
   frictions and explicit "Model confidence: placeholder" labels.
 
+## Rewind, forks & sensitivity (Sprint 8)
+
+- **Rewind** (`engine.rewindTo`): reconstructs the exact historical state at
+  any year index by deterministic replay from the seed — `rewindTo(n)` is the
+  state after n ticks; snapshot i corresponds to rewindTo(i+1). Not an
+  approximation: the engine is a pure function of its inputs.
+- **Forks** (`forks.ts`): `createFork` rewinds, applies interventions, and
+  continues with the SAME lifeSeed — shared history before the fork, identical
+  shocks after (common random numbers). Branches carry parent links,
+  breadcrumbs and a forkState snapshot captured before simulation (the
+  simulation mutates the working state). Nested forks chain from other forks.
+- **Butterfly Mode**: six curated small changes; deltas vs the paired original
+  measured at 5/10/horizon years — direct levers show early, downstream
+  effects accumulate. Nothing manufactured.
+- **Sensitivity** (`sensitivity.ts`): eight dimensions × discrete levels ×
+  small Monte Carlo each; the spread of an outcome's median across levels is
+  the dimension's model sensitivity. Outcome-specific (net worth / alignment /
+  health / runway), cancellable, deterministic.
+
 ## Life insights (`simulation/insights.ts`)
 
 `deriveLifeDrivers` powers "Why did this life happen?" — it ranks the model

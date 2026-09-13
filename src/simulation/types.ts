@@ -137,6 +137,7 @@ export interface LifeState {
   business: BusinessState | null
   educationPlan: EducationPlan | null
   retrainingYearsLeft: number
+  learningBoostYears: number
   jobHuntBoostYears: number
   jobHuntTargetIncrease: number
   savingsRateDelta: number // −0.2..+0.3
